@@ -10,3 +10,13 @@
   justify-content: center;
   align-items: center;
 }
+
+.background-div {
+  width: 100vw;
+  height: 15vh;
+  background-color: #48c99c;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}

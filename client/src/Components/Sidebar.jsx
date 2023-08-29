@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import "../Styles/Components.css";
 import AccountCircleSharpIcon from "@mui/icons-material/AccountCircleSharp";
 import { IconButton } from "@mui/material";
@@ -9,7 +9,26 @@ import NightlightIcon from "@mui/icons-material/Nightlight";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import SearchIcon from "@mui/icons-material/Search";
 import Conversations from "./Conversations";
-const Sidebar = ({ conversations }) => {
+import { useNavigate } from "react-router-dom";
+const Sidebar = () => {
+  const navigate = useNavigate();
+  const [conversations, setConversations] = useState([
+    {
+      name: "test#1",
+      lastMassege: "last massege #1",
+      timeStamp: "today",
+    },
+    {
+      name: "test#2",
+      lastMassege: "last massege #1",
+      timeStamp: "today",
+    },
+    {
+      name: "test#3",
+      lastMassege: "last massege #1",
+      timeStamp: "today",
+    },
+  ]);
   return (
     <div className="Sidebar-area">
       <div className="sb-header">
@@ -19,13 +38,25 @@ const Sidebar = ({ conversations }) => {
           </IconButton>
         </div>
         <div>
-          <IconButton>
+          <IconButton
+            onClick={() => {
+              navigate("users");
+            }}
+          >
             <PersonAddIcon />
           </IconButton>
-          <IconButton>
+          <IconButton
+            onClick={() => {
+              navigate("groups");
+            }}
+          >
             <GroupAddIcon />
           </IconButton>
-          <IconButton>
+          <IconButton
+            onClick={() => {
+              navigate("create-groups");
+            }}
+          >
             <AddCircleIcon />
           </IconButton>
           <IconButton>
@@ -39,7 +70,7 @@ const Sidebar = ({ conversations }) => {
       </div>
       <div className="sb-conversations">
         {conversations.map((conversation) => {
-          return <Conversations {...conversation} />;
+          return <Conversations {...conversation} key={conversation.name} />;
         })}
       </div>
     </div>

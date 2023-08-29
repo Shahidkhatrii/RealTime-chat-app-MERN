@@ -1,15 +1,34 @@
-import React from "react";
+import React, { useState } from "react";
 import "../Styles/Components.css";
 import { IconButton } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import SendIcon from "@mui/icons-material/Send";
 import MessageOthers from "./MessageOthers";
 import MessageSelf from "./MessageSelf";
-const ChatArea = ({ name, timeStamp }) => {
+const ChatArea = () => {
+  const [conversations, setConversations] = useState([
+    {
+      name: "test#1",
+      lastMassege: "last massege #1",
+      timeStamp: "today",
+    },
+    {
+      name: "test#1",
+      lastMassege: "last massege #1",
+      timeStamp: "today",
+    },
+    {
+      name: "test#1",
+      lastMassege: "last massege #1",
+      timeStamp: "today",
+    },
+  ]);
+  var name = conversations[0].name;
+  var timeStamp = conversations[0].timeStamp;
   return (
     <div className="chat-area-container">
       <div className="ca-header">
-        <p className="con-icon">{name[0]}</p>
+        <p className="con-icon">t</p>
         <div className="ca-header-content">
           <p className="con-title">{name}</p>
           <p className="con-timestamp">{timeStamp}</p>
@@ -19,6 +38,12 @@ const ChatArea = ({ name, timeStamp }) => {
         </IconButton>
       </div>
       <div className="ca-message-area">
+        <MessageOthers />
+        <MessageSelf />
+        <MessageOthers />
+        <MessageSelf />
+        <MessageOthers />
+        <MessageSelf />
         <MessageOthers />
         <MessageSelf />
       </div>
