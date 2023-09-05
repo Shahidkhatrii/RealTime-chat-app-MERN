@@ -4,7 +4,9 @@ const Welcome = () => {
   return (
     <div className="welcome-container">
       <img src={logo} alt="logo" className="welcom-logo" />
-      <p>View and chat directly to people present in the chat Rooms.</p>
+      <p className="welcome-text">
+        View and chat directly to people present in the chat Rooms.
+      </p>
     </div>
   );
 };

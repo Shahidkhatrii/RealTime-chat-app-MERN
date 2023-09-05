@@ -7,11 +7,13 @@ import ChatArea from "./Components/ChatArea";
 import Users from "./Components/Users";
 import Groups from "./Components/Groups";
 import CreateGroup from "./Components/CreateGroup";
+import { useSelector } from "react-redux";
 
 function App() {
+  const lightTheme = useSelector((state) => state.themeKey);
   return (
     <>
-      <div className="App">
+      <div className={"App" + (lightTheme ? "" : " dark-container")}>
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="app" element={<MainContainer />}>

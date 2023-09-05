@@ -8,7 +8,9 @@ const MessageSelf = () => {
   return (
     <div className="self-message-container">
       <div className="messageBox">
-        <p className="con-lastmassege">{props.message}</p>
+        <p className="con-lastmassege" style={{ color: "black" }}>
+          {props.message}
+        </p>
         <p className="self-timeStamp">12:45</p>
       </div>
     </div>
