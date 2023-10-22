@@ -83,5 +83,26 @@ const registerController = asyncHandler(async (req, res) => {
     throw new Error("Registration Error");
   }
 });
-
-module.exports = { loginController, registerController };
+//@desc Register a user
+//@route POST /user/register
+//@access public
+const fetchUsersController = asyncHandler(async (req, res) => {
+  console.log(req.query.keyword);
+  const keyword = req.query.search
+    ? {
+        $or: [
+          {
+            username: { $regex: req.query.search, $options: "i" },
+          },
+          {
+            email: { $regex: req.query.search, $options: "i" },
+          },
+        ],
+      }
+    : {};
+  const users = await User.find(keyword).find({
+    _id: { $ne: req.user._id },
+  });
+  res.send(users);
+});
+module.exports = { loginController, registerController, fetchUsersController };

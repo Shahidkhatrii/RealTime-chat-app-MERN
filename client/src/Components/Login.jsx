@@ -28,7 +28,6 @@ const Login = () => {
       };
 
       const response = await api.post("user/login", data, config);
-      console.log(response);
       setLogInStatus({ msg: "Success", key: Math.random() });
       setLoading(false);
       localStorage.setItem("UserData", JSON.stringify(response));
@@ -47,8 +46,8 @@ const Login = () => {
           key: Math.random(),
         });
       }
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   const SignUpHandler = async () => {
@@ -63,7 +62,7 @@ const Login = () => {
       setSignInStatus({ msg: "Success", key: Math.random() });
       console.log(response);
       navigate("/app/welcome");
-      localStorage.setItem("userData", JSON.stringify(response));
+      localStorage.setItem("UserData", JSON.stringify(response));
       setLoading(false);
     } catch (error) {
       console.log(error);

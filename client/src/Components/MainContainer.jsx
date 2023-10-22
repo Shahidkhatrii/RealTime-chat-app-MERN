@@ -3,11 +3,7 @@ import "../Styles/Components.css";
 import Sidebar from "./Sidebar";
 
 import "../Styles/Components.css";
-import ChatArea from "./ChatArea";
-import Welcome from "./Welcome";
-import CreateGroup from "./CreateGroup";
-import Groups from "./Groups";
-import Users from "./Users";
+
 import { Outlet } from "react-router-dom";
 import { useSelector } from "react-redux";
 const MainContainer = () => {

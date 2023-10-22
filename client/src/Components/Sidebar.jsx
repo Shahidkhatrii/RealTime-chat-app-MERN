@@ -9,34 +9,38 @@ import NightlightIcon from "@mui/icons-material/Nightlight";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import SearchIcon from "@mui/icons-material/Search";
 import Conversations from "./Conversations";
-import { useNavigate } from "react-router-dom";
+import { json, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleTheme } from "../Features/themeSlice";
+import api from "../api/chatapi";
 const Sidebar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const lightTheme = useSelector((state) => state.themeKey);
-  const [conversations, setConversations] = useState([
-    {
-      name: "test#1",
-      lastMassege: "last massege #1",
-      timeStamp: "today",
-    },
-    {
-      name: "test#2",
-      lastMassege: "last massege #1",
-      timeStamp: "today",
-    },
-    {
-      name: "test#3",
-      lastMassege: "last massege #1",
-      timeStamp: "today",
-    },
-  ]);
+  const [conversations, setConversations] = useState([]);
+  const userData = JSON.parse(localStorage.getItem("UserData") || "");
+  console.log(userData.data.token, "userdata");
+  const fetchConversation = async () => {
+    try {
+      const config = {
+        headers: {
+          "content-type": "application/json",
+          authorization: `Bearer ${userData.data.token}`,
+        },
+      };
+
+      const response = await api.get("user/fetchUsers", config);
+      console.log(response, "user list");
+      setConversations(response.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   return (
     <div className="Sidebar-area">
       <div className={"sb-header" + (lightTheme ? "" : " dark")}>
-        <div>
+        <div onClick={fetchConversation}>
           <IconButton>
             <AccountCircleSharpIcon
               className={"icon" + (lightTheme ? "" : " dark")}
@@ -89,7 +93,9 @@ const Sidebar = () => {
       </div>
       <div className={"sb-conversations" + (lightTheme ? "" : " dark")}>
         {conversations.map((conversation) => {
-          return <Conversations {...conversation} key={conversation.name} />;
+          return (
+            <Conversations {...conversation} key={conversation.username} />
+          );
         })}
       </div>
     </div>

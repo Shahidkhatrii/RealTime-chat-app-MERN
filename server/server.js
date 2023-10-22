@@ -3,12 +3,19 @@ const dotenv = require("dotenv");
 const connectDb = require("./config/dbConnection");
 const userRoutes = require("./Routes/userRoutes");
 const errorHandler = require("./middleware/errorHandler");
+const cors = require("cors");
 dotenv.config();
 
 connectDb();
 
 const app = express();
 app.use(express.json());
+app.use(
+  cors({
+    origin: "*",
+  })
+);
+
 app.use("/user", userRoutes);
 
 //Middlewares
