@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import "../Styles/Components.css";
 import AccountCircleSharpIcon from "@mui/icons-material/AccountCircleSharp";
 import { IconButton } from "@mui/material";
@@ -12,35 +12,36 @@ import Conversations from "./Conversations";
 import { json, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleTheme } from "../Features/themeSlice";
+import { refreshSidebarFun } from "../Features/refreshSideBar";
 import api from "../api/chatapi";
+import { myContext } from "./MainContainer";
 const Sidebar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const lightTheme = useSelector((state) => state.themeKey);
   const [conversations, setConversations] = useState([]);
+  const { refresh, setRefresh } = useContext(myContext);
+  console.log("Api : refresh ", refresh);
   const userData = JSON.parse(localStorage.getItem("UserData") || "");
   console.log(userData.data.token, "userdata");
-  const fetchConversation = async () => {
-    try {
-      const config = {
-        headers: {
-          "content-type": "application/json",
-          authorization: `Bearer ${userData.data.token}`,
-        },
-      };
 
-      const response = await api.get("user/fetchUsers", config);
-      console.log(response, "user list");
+  useEffect(() => {
+    const config = {
+      headers: {
+        "content-type": "application/json",
+        authorization: `Bearer ${userData.data.token}`,
+      },
+    };
+    api.get("user/fetchUsers", config).then((response) => {
       setConversations(response.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+      console.log("useEffect");
+    });
+  }, [refresh]);
 
   return (
     <div className="Sidebar-area">
       <div className={"sb-header" + (lightTheme ? "" : " dark")}>
-        <div onClick={fetchConversation}>
+        <div>
           <IconButton>
             <AccountCircleSharpIcon
               className={"icon" + (lightTheme ? "" : " dark")}
@@ -92,10 +93,37 @@ const Sidebar = () => {
         />
       </div>
       <div className={"sb-conversations" + (lightTheme ? "" : " dark")}>
-        {conversations.map((conversation) => {
+        {conversations.map((conversation, index) => {
+          // if (conversation.users.length === 1) {
+          //   return <div key={index}></div>;
+          // } else {
+          console.log(conversation);
           return (
             <Conversations {...conversation} key={conversation.username} />
           );
+          // }
+          // if (conversation.latestMessage === undefined) {
+          //   return (
+          //     <div
+          //       key={index}
+          //       onClick={() => {
+          //         console.log("Refresh fired from sidebar");
+          //         // dispatch(refreshSidebarFun());
+          //         setRefresh(!refresh);
+          //       }}
+          //     >
+          //       <div
+          //         key={index}
+          //         className="conversation-container"
+          //         onClick={() => {
+          //           navigate(
+          //             `chat/${conversation._id}&${conversation.users[1].name}`
+          //           );
+          //         }}
+          //       ></div>
+          //     </div>
+          //   );
+          // }
         })}
       </div>
     </div>

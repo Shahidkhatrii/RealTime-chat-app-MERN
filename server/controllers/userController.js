@@ -1,7 +1,7 @@
 const express = require("express");
 const asyncHandler = require("express-async-handler");
 const bcrypt = require("bcrypt");
-const User = require("../Models/userModel");
+const User = require("../models/userModel");
 const generateToken = require("../config/generateToken");
 
 //@desc login a user
