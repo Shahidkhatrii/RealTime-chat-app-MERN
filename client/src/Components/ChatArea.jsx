@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useRef, useState } from "react";
 import "../Styles/Components.css";
 import { IconButton } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -6,25 +6,22 @@ import SendIcon from "@mui/icons-material/Send";
 import MessageOthers from "./MessageOthers";
 import MessageSelf from "./MessageSelf";
 import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import { myContext } from "./MainContainer";
 const ChatArea = () => {
+  const navigate = useNavigate();
   const lightTheme = useSelector((state) => state.themeKey);
-  const [conversations, setConversations] = useState([
-    {
-      name: "test#1",
-      lastMassege: "last massege #1",
-      timeStamp: "today",
-    },
-    {
-      name: "test#1",
-      lastMassege: "last massege #1",
-      timeStamp: "today",
-    },
-    {
-      name: "test#1",
-      lastMassege: "last massege #1",
-      timeStamp: "today",
-    },
-  ]);
+  const [messageContent, setMessageContent] = useState("");
+  const messageEndRef = useRef(null);
+
+  const userData = JSON.parse(localStorage.getItem("UserData") || "");
+  const [allMessages, setAllMessages] = useState([]);
+
+  const { refresh, setRefresh } = useContext(myContext);
+  const [loaded, setLoaded] = useState();
+  if (!userData) {
+    navigate("/");
+  }
   var name = conversations[0].name;
   var timeStamp = conversations[0].timeStamp;
   return (

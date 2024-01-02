@@ -9,7 +9,7 @@ import NightlightIcon from "@mui/icons-material/Nightlight";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import SearchIcon from "@mui/icons-material/Search";
 import Conversations from "./Conversations";
-import { json, useNavigate } from "react-router-dom";
+import { Navigate, json, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleTheme } from "../Features/themeSlice";
 import { refreshSidebarFun } from "../Features/refreshSideBar";
@@ -21,20 +21,23 @@ const Sidebar = () => {
   const lightTheme = useSelector((state) => state.themeKey);
   const [conversations, setConversations] = useState([]);
   const { refresh, setRefresh } = useContext(myContext);
-  console.log("Api : refresh ", refresh);
-  const userData = JSON.parse(localStorage.getItem("UserData") || "");
-  console.log(userData.data.token, "userdata");
 
+  const userData = JSON.parse(localStorage.getItem("UserData") || "");
+
+  if (!userData) {
+    navigate("/");
+  }
+  console.log(userData.data.token, "userdata");
+  const user = userData.data;
   useEffect(() => {
     const config = {
       headers: {
         "content-type": "application/json",
-        authorization: `Bearer ${userData.data.token}`,
+        authorization: `Bearer ${user.token}`,
       },
     };
-    api.get("user/fetchUsers", config).then((response) => {
+    api.get("chat/", config).then((response) => {
       setConversations(response.data);
-      console.log("useEffect");
     });
   }, [refresh]);
 
@@ -42,7 +45,11 @@ const Sidebar = () => {
     <div className="Sidebar-area">
       <div className={"sb-header" + (lightTheme ? "" : " dark")}>
         <div>
-          <IconButton>
+          <IconButton
+            onClick={() => {
+              navigate("/app/welcome");
+            }}
+          >
             <AccountCircleSharpIcon
               className={"icon" + (lightTheme ? "" : " dark")}
             />
@@ -94,36 +101,83 @@ const Sidebar = () => {
       </div>
       <div className={"sb-conversations" + (lightTheme ? "" : " dark")}>
         {conversations.map((conversation, index) => {
+          console.log(conversation, "current convo");
           // if (conversation.users.length === 1) {
           //   return <div key={index}></div>;
           // } else {
-          console.log(conversation);
-          return (
-            <Conversations {...conversation} key={conversation.username} />
-          );
-          // }
-          // if (conversation.latestMessage === undefined) {
-          //   return (
-          //     <div
-          //       key={index}
-          //       onClick={() => {
-          //         console.log("Refresh fired from sidebar");
-          //         // dispatch(refreshSidebarFun());
-          //         setRefresh(!refresh);
-          //       }}
-          //     >
-          //       <div
-          //         key={index}
-          //         className="conversation-container"
-          //         onClick={() => {
-          //           navigate(
-          //             `chat/${conversation._id}&${conversation.users[1].name}`
-          //           );
-          //         }}
-          //       ></div>
-          //     </div>
-          //   );
-          // }
+          if (conversation.users.length === 1) {
+            return <div key={index}></div>;
+          }
+          if (conversation.latestMessage === undefined) {
+            // console.log("No Latest Message with ", conversation.users[1]);
+            return (
+              <div
+                key={index}
+                onClick={() => {
+                  console.log("Refresh fired from sidebar");
+                  // dispatch(refreshSidebarFun());
+                  setRefresh(!refresh);
+                }}
+              >
+                <div
+                  key={index}
+                  className="conversation-container"
+                  onClick={() => {
+                    navigate(
+                      "chat/" +
+                        conversation._id +
+                        "&" +
+                        conversation.users[1].username
+                    );
+                  }}
+                  // dispatch change to refresh so as to update chatArea
+                >
+                  <p className={"con-icon" + (lightTheme ? "" : " dark")}>
+                    {conversation.users[1].username[0]}
+                  </p>
+                  <p className={"con-title" + (lightTheme ? "" : " dark")}>
+                    {conversation.users[1].username}
+                  </p>
+
+                  <p className="con-lastMessage">
+                    No previous Messages, click here to start a new chat
+                  </p>
+                  {/* <p className={"con-timeStamp" + (lightTheme ? "" : " dark")}>
+                  {conversation.timeStamp}
+                </p> */}
+                </div>
+              </div>
+            );
+          } else {
+            return (
+              <div
+                key={index}
+                className="conversation-container"
+                onClick={() => {
+                  navigate(
+                    "chat/" +
+                      conversation._id +
+                      "&" +
+                      conversation.users[1].username
+                  );
+                }}
+              >
+                <p className={"con-icon" + (lightTheme ? "" : " dark")}>
+                  {conversation.users[1].username[0]}
+                </p>
+                <p className={"con-title" + (lightTheme ? "" : " dark")}>
+                  {conversation.users[1].username}
+                </p>
+
+                <p className="con-lastMessage">
+                  {conversation.latestMessage.content}
+                </p>
+                {/* <p className={"con-timeStamp" + (lightTheme ? "" : " dark")}>
+                  {conversation.timeStamp}
+                </p> */}
+              </div>
+            );
+          }
         })}
       </div>
     </div>

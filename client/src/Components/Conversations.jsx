@@ -2,7 +2,7 @@ import React from "react";
 import "../Styles/Components.css";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-const Conversations = ({ username, lastMassege, timeStamp }) => {
+const Conversations = ({ users, lastMassege, timeStamp }) => {
   const navigate = useNavigate();
   const lightTheme = useSelector((state) => state.themeKey);
   return (
@@ -12,8 +12,12 @@ const Conversations = ({ username, lastMassege, timeStamp }) => {
         navigate("chat");
       }}
     >
-      <p className={"con-icon" + (lightTheme ? "" : " dark")}>{username[0]}</p>
-      <p className={"con-title" + (lightTheme ? "" : " dark")}>{username}</p>
+      <p className={"con-icon" + (lightTheme ? "" : " dark")}>
+        {users[1].username[0]}
+      </p>
+      <p className={"con-title" + (lightTheme ? "" : " dark")}>
+        {users[1].username}
+      </p>
       <p className={"con-lastmassege" + (lightTheme ? "" : " dark")}>
         {lastMassege}
       </p>

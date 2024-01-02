@@ -83,6 +83,7 @@ const registerController = asyncHandler(async (req, res) => {
     throw new Error("Registration Error");
   }
 });
+
 //@desc Register a user
 //@route POST /user/register
 //@access public

@@ -6,6 +6,7 @@ const {
   fetchGroup,
   createGroupChat,
   groupExit,
+  addSelfToGroup,
 } = require("../controllers/chatController");
 
 const Router = express.Router();
@@ -15,5 +16,5 @@ Router.route("/").get(protect, fetchChat);
 Router.route("/createGroup").post(protect, createGroupChat);
 Router.route("/fetchGroup").get(protect, fetchGroup);
 Router.route("/groupExit").put(protect, groupExit);
-
+Router.route("/addSelfToGroup").put(protect,addSelfToGroup);
 module.exports = Router;
