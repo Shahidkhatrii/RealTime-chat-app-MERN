@@ -1,64 +1,165 @@
-import React, { useContext, useRef, useState } from "react";
-import "../Styles/Components.css";
-import { IconButton } from "@mui/material";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
+import { IconButton } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
-import MessageOthers from "./MessageOthers";
 import MessageSelf from "./MessageSelf";
+import MessageOthers from "./MessageOthers";
 import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
+import Skeleton from "@mui/material/Skeleton";
+import axios from "axios";
 import { myContext } from "./MainContainer";
-const ChatArea = () => {
-  const navigate = useNavigate();
+import api from "../api/chatapi";
+function ChatArea() {
   const lightTheme = useSelector((state) => state.themeKey);
   const [messageContent, setMessageContent] = useState("");
-  const messageEndRef = useRef(null);
-
+  const messagesEndRef = useRef(null);
+  const dyParams = useParams();
+  const [chat_id, chat_user] = dyParams._id.split("&");
+  // console.log(chat_id, chat_user);
   const userData = JSON.parse(localStorage.getItem("UserData") || "");
+  console.log(userData, "Chat Area");
   const [allMessages, setAllMessages] = useState([]);
-
+  // console.log("Chat area id : ", chat_id._id);
+  // const refresh = useSelector((state) => state.refreshKey);
   const { refresh, setRefresh } = useContext(myContext);
-  const [loaded, setLoaded] = useState();
-  if (!userData) {
-    navigate("/");
-  }
-  var name = conversations[0].name;
-  var timeStamp = conversations[0].timeStamp;
-  return (
-    <div className="chat-area-container">
-      <div className={"ca-header" + (lightTheme ? "" : " dark")}>
-        <p className={"con-icon" + (lightTheme ? "" : " dark")}>t</p>
-        <div className={"ca-header-content" + (lightTheme ? "" : " dark")}>
-          <p className={"con-title" + (lightTheme ? "" : " dark")}>{name}</p>
-          <p className={"con-timestamp" + (lightTheme ? "" : " dark")}>
-            {timeStamp}
-          </p>
-        </div>
-        <IconButton>
-          <DeleteIcon className={"icon" + (lightTheme ? "" : " dark")} />
-        </IconButton>
-      </div>
-      <div className={"ca-message-area" + (lightTheme ? "" : " dark")}>
-        <MessageOthers />
-        <MessageSelf />
-        <MessageOthers />
-        <MessageSelf />
-        <MessageOthers />
-        <MessageSelf />
-        <MessageOthers />
-        <MessageSelf />
-      </div>
-      <div className={"ca-text-input" + (lightTheme ? "" : " dark")}>
-        <input
-          placeholder="Type a message"
-          className={"search-box" + (lightTheme ? "" : " dark")}
+  const [loaded, setloaded] = useState(false);
+
+  const sendMessage = () => {
+    // console.log("SendMessage Fired to", chat_id._id);
+    const config = {
+      headers: {
+        Authorization: `Bearer ${userData.data.token}`,
+      },
+    };
+    api
+      .post(
+        "message/",
+        {
+          content: messageContent,
+          chatId: chat_id,
+        },
+        config
+      )
+      .then(({ data }) => {
+        console.log("Message Fired");
+      });
+  };
+  // const scrollToBottom = () => {
+  //   messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  // };
+
+  useEffect(() => {
+    console.log("Users refreshed");
+    const config = {
+      headers: {
+        Authorization: `Bearer ${userData.data.token}`,
+      },
+    };
+    api.get("message/" + chat_id, config).then(({ data }) => {
+      setAllMessages(data);
+      setloaded(true);
+      // console.log("Data from Acess Chat API ", data);
+    });
+    // scrollToBottom();
+  }, [refresh, chat_id, userData.data.token]);
+
+  if (!loaded) {
+    return (
+      <div
+        style={{
+          border: "20px",
+          padding: "10px",
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+          gap: "10px",
+        }}
+      >
+        <Skeleton
+          variant="rectangular"
+          sx={{ width: "100%", borderRadius: "10px" }}
+          height={60}
         />
-        <IconButton>
-          <SendIcon className={"icon" + (lightTheme ? "" : " dark")} />
-        </IconButton>
+        <Skeleton
+          variant="rectangular"
+          sx={{
+            width: "100%",
+            borderRadius: "10px",
+            flexGrow: "1",
+          }}
+        />
+        <Skeleton
+          variant="rectangular"
+          sx={{ width: "100%", borderRadius: "10px" }}
+          height={60}
+        />
       </div>
-    </div>
-  );
-};
+    );
+  } else {
+    return (
+      <div className={"chat-area-container" + (lightTheme ? "" : " dark")}>
+        <div className={"ca-header" + (lightTheme ? "" : " dark")}>
+          <p className={"con-icon" + (lightTheme ? "" : " dark")}>
+            {chat_user[0]}
+          </p>
+          <div className={"header-text" + (lightTheme ? "" : " dark")}>
+            <p className={"con-title" + (lightTheme ? "" : " dark")}>
+              {chat_user}
+            </p>
+            {/* <p className={"con-timeStamp" + (lightTheme ? "" : " dark")}>
+              {props.timeStamp}
+            </p> */}
+          </div>
+          <IconButton className={"icon" + (lightTheme ? "" : " dark")}>
+            <DeleteIcon />
+          </IconButton>
+        </div>
+        <div className={"ca-message-area" + (lightTheme ? "" : " dark")}>
+          {allMessages.slice(0).map((message, index) => {
+            const sender = message.sender;
+            const self_id = userData.data._id;
+            if (sender._id === self_id) {
+              // console.log("I sent it ");
+              return <MessageSelf props={message} key={index} />;
+            } else {
+              // console.log("Someone Sent it");
+              return <MessageOthers props={message} key={index} />;
+            }
+          })}
+        </div>
+        <div ref={messagesEndRef} className="BOTTOM" />
+        <div className={"ca-text-input" + (lightTheme ? "" : " dark")}>
+          <input
+            placeholder="Type a Message"
+            className={"search-box" + (lightTheme ? "" : " dark")}
+            value={messageContent}
+            onChange={(e) => {
+              setMessageContent(e.target.value);
+            }}
+            onKeyDown={(event) => {
+              if (event.code == "Enter") {
+                // console.log(event);
+                sendMessage();
+                setMessageContent("");
+                setRefresh(!refresh);
+              }
+            }}
+          />
+          <IconButton
+            className={"icon" + (lightTheme ? "" : " dark")}
+            onClick={() => {
+              sendMessage();
+              setMessageContent("");
+              setRefresh(!refresh);
+            }}
+          >
+            <SendIcon />
+          </IconButton>
+        </div>
+      </div>
+    );
+  }
+}
 
 export default ChatArea;

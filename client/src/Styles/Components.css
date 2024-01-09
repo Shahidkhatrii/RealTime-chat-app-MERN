@@ -107,7 +107,6 @@
     font-size: 1rem;
     margin-left: 10px;
     color: rgba(0, 0, 0, 0.54);
-
     flex: 1;
 }
 
@@ -476,7 +475,15 @@
     }
 
     .createGroup-container {
-        flex: 1;
+        flex: 0.7;
+        align-self: center;
+        padding: 20px 10px;
+        margin: 10px;
+        background-color: rgb(255, 255, 255);
+        border-radius: 20px;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
     }
 
     .createGroup-box {

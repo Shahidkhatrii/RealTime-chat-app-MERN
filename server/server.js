@@ -20,7 +20,7 @@ app.use(
 
 app.use("/user", userRoutes);
 app.use("/chat", chatRoutes);
-app.use("message", messageRoutes);
+app.use("/message", messageRoutes);
 //Middlewares
 // app.use(errorHandler);
 

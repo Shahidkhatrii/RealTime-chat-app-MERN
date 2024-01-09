@@ -1,10 +1,44 @@
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
 import logo from "../../../icons/logo.png";
 import { IconButton } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import SearchIcon from "@mui/icons-material/Search";
 import { AnimatePresence, motion } from "framer-motion";
+import { myContext } from "./MainContainer";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import api from "../api/chatapi";
+import { refreshSidebarFun } from "../Features/refreshSideBar";
+
 const Groups = () => {
+  const { refresh, setRefresh } = useContext(myContext);
+
+  const lightTheme = useSelector((state) => state.themeKey);
+  const dispatch = useDispatch();
+
+  const [groups, setGroups] = useState([]);
+
+  const userData = JSON.parse(localStorage.getItem("UserData"));
+
+  const navigate = useNavigate();
+
+  if (!userData) {
+    navigate("/");
+  }
+
+  const user = userData.data;
+
+  useEffect(() => {
+    const config = {
+      headers: {
+        Authorization: `Bearer ${user.token}`,
+      },
+    };
+    api.get("/chat/fetchGroup", config).then((response) => {
+      setGroups(response.data);
+    });
+  }, [refresh]);
+
   return (
     <AnimatePresence>
       <motion.div
@@ -23,27 +57,43 @@ const Groups = () => {
             style={{ height: "2rem", width: "2rem", marginLeft: "10px" }}
           />
           <p className="ug-title">Available Groups</p>
-          <IconButton className="icon">
+          <IconButton
+            className="icon"
+            onClick={() => {
+              setRefresh(!refresh);
+            }}
+          >
             <RefreshIcon />
           </IconButton>
         </div>
+
         <div className="sb-search">
           <IconButton className="icon">
             <SearchIcon />
           </IconButton>
           <input placeholder="Search" className="search-box" />
         </div>
+
         <div className="ug-list">
-          <motion.div
-            whileHover={{ scale: 1.01 }}
-            whileTap={{ scale: 0.99 }}
-            className="list-tem"
-          >
-            <p className="con-icon">T</p>
-            <p className="con-title" style={{ marginLeft: "10px" }}>
-              Group#1
-            </p>
-          </motion.div>
+          {groups.map((group, index) => {
+            return (
+              <motion.div
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.98 }}
+                className={"list-tem" + (lightTheme ? "" : " dark")}
+                key={index}
+                onClick={() => {
+                  console.log("Creating chat with group", group.chatName);
+                  dispatch(refreshSidebarFun());
+                }}
+              >
+                <p className={"con-icon" + (lightTheme ? "" : " dark")}>T</p>
+                <p className={"con-title" + (lightTheme ? "" : " dark")}>
+                  {group.chatName}
+                </p>
+              </motion.div>
+            );
+          })}
         </div>
       </motion.div>
     </AnimatePresence>
