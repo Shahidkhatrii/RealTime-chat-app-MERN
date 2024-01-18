@@ -69,12 +69,13 @@ const Users = () => {
         </div>
         <div className={"ug-list" + (lightTheme ? "" : " dark")}>
           {users.map((user) => {
-            console.log(user);
+            console.log(user, "usersss....");
             return (
               <motion.div
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.99 }}
                 className={"list-tem" + (lightTheme ? "" : " dark")}
+                key={user._id}
                 onClick={() => {
                   const config = {
                     headers: {
@@ -88,7 +89,7 @@ const Users = () => {
                     },
                     config
                   );
-                  dispatch(refreshSideBar());
+                  dispatch(refreshSideBar);
                 }}
               >
                 <p className={"con-icon" + (lightTheme ? "" : " dark")}>

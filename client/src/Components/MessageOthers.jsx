@@ -3,8 +3,9 @@ import { useSelector } from "react-redux";
 
 const MessageOthers = ({ props }) => {
   const lightTheme = useSelector((state) => state.themeKey);
+  console.log(props);
   return (
-    <div className={"others-message-container" + (lightTheme ? "" : " dark")}>
+    <div className={"other-message-container" + (lightTheme ? "" : " dark")}>
       <div className={"conversation-card" + (lightTheme ? "" : " dark")}>
         <p className={"con-icon" + (lightTheme ? "" : " lessdark")}>
           {props.sender.username[0]}

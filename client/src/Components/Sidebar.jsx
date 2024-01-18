@@ -6,6 +6,7 @@ import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import NightlightIcon from "@mui/icons-material/Nightlight";
+import LogoutIcon from "@mui/icons-material/Logout";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import SearchIcon from "@mui/icons-material/Search";
 import Conversations from "./Conversations";
@@ -27,8 +28,14 @@ const Sidebar = () => {
   if (!userData) {
     navigate("/");
   }
-  console.log(userData.data.token, "userdata");
+  console.log(userData.data, "userdata");
   const user = userData.data;
+
+  const handleLogout = () => {
+    localStorage.removeItem("UserData");
+    navigate("/");
+  };
+
   useEffect(() => {
     const config = {
       headers: {
@@ -87,6 +94,9 @@ const Sidebar = () => {
               <LightModeIcon className={"icon" + (lightTheme ? "" : " dark")} />
             )}
           </IconButton>
+          <IconButton onClick={handleLogout}>
+            <LogoutIcon className={"icon" + (lightTheme ? "" : " dark")} />
+          </IconButton>
         </div>
       </div>
       <div className={"sb-search" + (lightTheme ? "" : " dark")}>
@@ -102,6 +112,12 @@ const Sidebar = () => {
       <div className={"sb-conversations" + (lightTheme ? "" : " dark")}>
         {conversations.map((conversation, index) => {
           console.log(conversation, "current convo");
+          const conReceiver =
+            conversation.users[0]._id === user._id
+              ? conversation.users[1]
+              : conversation.users[0];
+
+          console.log(conReceiver, "conReciver");
           // if (conversation.users.length === 1) {
           //   return <div key={index}></div>;
           // } else {
@@ -124,19 +140,16 @@ const Sidebar = () => {
                   className="conversation-container"
                   onClick={() => {
                     navigate(
-                      "chat/" +
-                        conversation._id +
-                        "&" +
-                        conversation.users[1].username
+                      "chat/" + conversation._id + "&" + conReceiver.username
                     );
                   }}
                   // dispatch change to refresh so as to update chatArea
                 >
                   <p className={"con-icon" + (lightTheme ? "" : " dark")}>
-                    {conversation.users[1].username[0]}
+                    {conReceiver.username[0]}
                   </p>
                   <p className={"con-title" + (lightTheme ? "" : " dark")}>
-                    {conversation.users[1].username}
+                    {conReceiver.username}
                   </p>
 
                   <p className="con-lastMessage">
@@ -155,18 +168,15 @@ const Sidebar = () => {
                 className="conversation-container"
                 onClick={() => {
                   navigate(
-                    "chat/" +
-                      conversation._id +
-                      "&" +
-                      conversation.users[1].username
+                    "chat/" + conversation._id + "&" + conReceiver.username
                   );
                 }}
               >
                 <p className={"con-icon" + (lightTheme ? "" : " dark")}>
-                  {conversation.users[1].username[0]}
+                  {conReceiver.username[0]}
                 </p>
                 <p className={"con-title" + (lightTheme ? "" : " dark")}>
-                  {conversation.users[1].username}
+                  {conReceiver.username}
                 </p>
 
                 <p className="con-lastMessage">

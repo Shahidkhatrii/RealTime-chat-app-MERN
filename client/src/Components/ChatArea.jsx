@@ -5,7 +5,7 @@ import SendIcon from "@mui/icons-material/Send";
 import MessageSelf from "./MessageSelf";
 import MessageOthers from "./MessageOthers";
 import { useSelector } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import Skeleton from "@mui/material/Skeleton";
 import axios from "axios";
 import { myContext } from "./MainContainer";
@@ -19,6 +19,10 @@ function ChatArea() {
   // console.log(chat_id, chat_user);
   const userData = JSON.parse(localStorage.getItem("UserData") || "");
   console.log(userData, "Chat Area");
+  const navigate = useNavigate();
+  if (!userData) {
+    navigate("/");
+  }
   const [allMessages, setAllMessages] = useState([]);
   // console.log("Chat area id : ", chat_id._id);
   // const refresh = useSelector((state) => state.refreshKey);
@@ -57,6 +61,7 @@ function ChatArea() {
       },
     };
     api.get("message/" + chat_id, config).then(({ data }) => {
+      console.log("Fetched....", data);
       setAllMessages(data);
       setloaded(true);
       // console.log("Data from Acess Chat API ", data);
@@ -116,17 +121,20 @@ function ChatArea() {
           </IconButton>
         </div>
         <div className={"ca-message-area" + (lightTheme ? "" : " dark")}>
-          {allMessages.slice(0).map((message, index) => {
-            const sender = message.sender;
-            const self_id = userData.data._id;
-            if (sender._id === self_id) {
-              // console.log("I sent it ");
-              return <MessageSelf props={message} key={index} />;
-            } else {
-              // console.log("Someone Sent it");
-              return <MessageOthers props={message} key={index} />;
-            }
-          })}
+          {allMessages
+            .slice(0)
+            .reverse()
+            .map((message, index) => {
+              const sender = message.sender;
+              const self_id = userData.data._id;
+              if (sender._id === self_id) {
+                // console.log("I sent it ");
+                return <MessageSelf props={message} key={index} />;
+              } else {
+                // console.log("Someone Sent it");
+                return <MessageOthers props={message} key={index} />;
+              }
+            })}
         </div>
         <div ref={messagesEndRef} className="BOTTOM" />
         <div className={"ca-text-input" + (lightTheme ? "" : " dark")}>

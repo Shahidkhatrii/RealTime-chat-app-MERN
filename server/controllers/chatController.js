@@ -11,7 +11,6 @@ const accessChat = asyncHandler(async (req, res) => {
     console.log("UserId param not sent with request");
     res.sendStatus(400);
   }
-
   let isChat = await Chat.find({
     isGroupChat: false,
     $and: [
@@ -54,6 +53,7 @@ const accessChat = asyncHandler(async (req, res) => {
 //@route GET /chat/
 //@access private
 const fetchChat = asyncHandler(async (req, res) => {
+  console.log(req.user._id, "current user");
   try {
     Chat.find({ users: { $elemMatch: { $eq: req.user._id } } })
       .populate("users", "-password")
