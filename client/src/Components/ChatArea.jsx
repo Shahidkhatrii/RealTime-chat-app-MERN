@@ -1,24 +1,29 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { IconButton } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import MessageSelf from "./MessageSelf";
 import MessageOthers from "./MessageOthers";
-import { useSelector } from "react-redux";
-import { useNavigate, useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import Skeleton from "@mui/material/Skeleton";
-import axios from "axios";
-import { myContext } from "./MainContainer";
 import api from "../api/chatapi";
+import { io } from "socket.io-client";
+import { setRefresh } from "../Features/refreshSlice";
+
+const ENDPOINT = "http://localhost:5000";
+var socket, selectedChatCompare;
 function ChatArea() {
+  const dispatch = useDispatch();
   const lightTheme = useSelector((state) => state.themeKey);
   const [messageContent, setMessageContent] = useState("");
+  const selectedChat = useSelector((state) => state.chatSlice.selectedChat);
   const messagesEndRef = useRef(null);
-  const dyParams = useParams();
-  const [chat_id, chat_user] = dyParams._id.split("&");
+  const refresh = useSelector((state) => state.refreshKey);
+  console.log(selectedChat, "chat user from id param");
   // console.log(chat_id, chat_user);
   const userData = JSON.parse(localStorage.getItem("UserData") || "");
-  console.log(userData, "Chat Area");
+  console.log(userData, "userdata....");
   const navigate = useNavigate();
   if (!userData) {
     navigate("/");
@@ -26,91 +31,127 @@ function ChatArea() {
   const [allMessages, setAllMessages] = useState([]);
   // console.log("Chat area id : ", chat_id._id);
   // const refresh = useSelector((state) => state.refreshKey);
-  const { refresh, setRefresh } = useContext(myContext);
+  // const { refresh, setRefresh } = useContext(myContext);
   const [loaded, setloaded] = useState(false);
 
-  const sendMessage = () => {
-    // console.log("SendMessage Fired to", chat_id._id);
+  const fetchMessages = async () => {
+    if (!selectedChat) return;
+    console.log("fETCH USEEFFECT.......");
     const config = {
       headers: {
         Authorization: `Bearer ${userData.data.token}`,
       },
     };
-    api
-      .post(
+
+    const { data } = await api.get("message/" + selectedChat?._id, config);
+    setAllMessages(data);
+    setloaded(true);
+    socket.emit("join chat", selectedChat?._id);
+  };
+
+  const sendMessage = async () => {
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${userData.data.token}`,
+        },
+      };
+      const { data } = await api.post(
         "message/",
         {
           content: messageContent,
-          chatId: chat_id,
+          chatId: selectedChat?._id,
         },
         config
-      )
-      .then(({ data }) => {
-        console.log("Message Fired");
-      });
+      );
+      socket.emit("newMessage", data);
+      setAllMessages([...allMessages, data]);
+      dispatch(setRefresh(!refresh));
+    } catch (error) {
+      console.log(error);
+    }
   };
   // const scrollToBottom = () => {
   //   messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   // };
-
+  // connect to socket
   useEffect(() => {
-    console.log("Users refreshed");
-    const config = {
-      headers: {
-        Authorization: `Bearer ${userData.data.token}`,
-      },
-    };
-    api.get("message/" + chat_id, config).then(({ data }) => {
-      console.log("Fetched....", data);
-      setAllMessages(data);
-      setloaded(true);
-      // console.log("Data from Acess Chat API ", data);
-    });
+    socket = io(ENDPOINT);
+    socket.emit("setup", userData);
+  }, []);
+  //fetch chats
+  useEffect(() => {
+    if (!selectedChat || selectedChat === null) {
+      navigate("/app/welcome");
+    }
+    fetchMessages();
+    selectedChatCompare = selectedChat?._id;
     // scrollToBottom();
-  }, [refresh, chat_id, userData.data.token]);
+  }, [refresh, selectedChat, userData.data.token]);
+
+  // new message received
+  useEffect(() => {
+    socket.on("message received", (newMessage) => {
+      if (!selectedChatCompare || selectedChatCompare !== newMessage.chat._id) {
+        console.log("if", selectedChat, newMessage.chat._id);
+      } else {
+        console.log("else if", selectedChat, newMessage.chat._id);
+        const updatedMessages = [...allMessages, newMessage];
+        setAllMessages(updatedMessages);
+        dispatch(setRefresh(!refresh));
+      }
+    });
+  });
 
   if (!loaded) {
     return (
       <div
         style={{
-          border: "20px",
-          padding: "10px",
-          width: "100%",
+          flex: "0.7",
           display: "flex",
           flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          padding: "10px 0 10px 0",
+          border: "20px",
           gap: "10px",
         }}
       >
         <Skeleton
           variant="rectangular"
-          sx={{ width: "100%", borderRadius: "10px" }}
+          sx={{ width: "98%", borderRadius: "10px" }}
           height={60}
         />
         <Skeleton
           variant="rectangular"
           sx={{
-            width: "100%",
+            width: "98%",
             borderRadius: "10px",
             flexGrow: "1",
           }}
         />
         <Skeleton
           variant="rectangular"
-          sx={{ width: "100%", borderRadius: "10px" }}
+          sx={{ width: "98%", borderRadius: "10px" }}
           height={60}
         />
       </div>
     );
   } else {
+    const chat_user =
+      selectedChat?.users[0]._id === userData.data._id
+        ? selectedChat?.users[1]
+        : selectedChat?.users[0];
+    console.log(chat_user, "chat user...");
     return (
       <div className={"chat-area-container" + (lightTheme ? "" : " dark")}>
         <div className={"ca-header" + (lightTheme ? "" : " dark")}>
           <p className={"con-icon" + (lightTheme ? "" : " dark")}>
-            {chat_user[0]}
+            {chat_user.username[0]}
           </p>
           <div className={"header-text" + (lightTheme ? "" : " dark")}>
             <p className={"con-title" + (lightTheme ? "" : " dark")}>
-              {chat_user}
+              {chat_user.username}
             </p>
             {/* <p className={"con-timeStamp" + (lightTheme ? "" : " dark")}>
               {props.timeStamp}
@@ -150,7 +191,7 @@ function ChatArea() {
                 // console.log(event);
                 sendMessage();
                 setMessageContent("");
-                setRefresh(!refresh);
+                dispatch(setRefresh(!refresh));
               }
             }}
           />
@@ -159,7 +200,7 @@ function ChatArea() {
             onClick={() => {
               sendMessage();
               setMessageContent("");
-              setRefresh(!refresh);
+              dispatch(setRefresh(!refresh));
             }}
           >
             <SendIcon />

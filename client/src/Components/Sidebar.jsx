@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import "../Styles/Components.css";
 import AccountCircleSharpIcon from "@mui/icons-material/AccountCircleSharp";
 import { IconButton } from "@mui/material";
@@ -9,33 +9,27 @@ import NightlightIcon from "@mui/icons-material/Nightlight";
 import LogoutIcon from "@mui/icons-material/Logout";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import SearchIcon from "@mui/icons-material/Search";
-import Conversations from "./Conversations";
-import { Navigate, json, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleTheme } from "../Features/themeSlice";
-import { refreshSidebarFun } from "../Features/refreshSideBar";
 import api from "../api/chatapi";
-import { myContext } from "./MainContainer";
+import { setChats, setSelectedChat } from "../Features/chatSlice";
+import { setRefresh } from "../Features/refreshSlice";
 const Sidebar = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const lightTheme = useSelector((state) => state.themeKey);
-  const [conversations, setConversations] = useState([]);
-  const { refresh, setRefresh } = useContext(myContext);
-
-  const userData = JSON.parse(localStorage.getItem("UserData") || "");
-
+  const selectedChat = useSelector((state) => state.chatSlice.selectedChat);
+  const chats = useSelector((state) => state.chatSlice.chats);
+  // const { refresh, setRefresh } = useContext(myContext);
+  const refresh = useSelector((state) => state.refreshKey);
+  const userData = JSON.parse(localStorage.getItem("UserData") || null);
   if (!userData) {
     navigate("/");
   }
-  console.log(userData.data, "userdata");
+  console.log(chats, "All chats");
   const user = userData.data;
-
-  const handleLogout = () => {
-    localStorage.removeItem("UserData");
-    navigate("/");
-  };
-
+  console.log(user);
   useEffect(() => {
     const config = {
       headers: {
@@ -43,11 +37,14 @@ const Sidebar = () => {
         authorization: `Bearer ${user.token}`,
       },
     };
-    api.get("chat/", config).then((response) => {
-      setConversations(response.data);
+    api.get("chat/", config).then(({ data }) => {
+      dispatch(setChats(data));
     });
-  }, [refresh]);
-
+  }, [refresh, selectedChat]);
+  const handleLogout = () => {
+    localStorage.removeItem("UserData");
+    navigate("/");
+  };
   return (
     <div className="Sidebar-area">
       <div className={"sb-header" + (lightTheme ? "" : " dark")}>
@@ -110,38 +107,33 @@ const Sidebar = () => {
         />
       </div>
       <div className={"sb-conversations" + (lightTheme ? "" : " dark")}>
-        {conversations.map((conversation, index) => {
-          console.log(conversation, "current convo");
+        {chats.map((chat, index) => {
+          console.log(chat, "displaying chats...");
           const conReceiver =
-            conversation.users[0]._id === user._id
-              ? conversation.users[1]
-              : conversation.users[0];
+            chat.users[0]._id === user._id ? chat.users[1] : chat.users[0];
 
-          console.log(conReceiver, "conReciver");
           // if (conversation.users.length === 1) {
           //   return <div key={index}></div>;
           // } else {
-          if (conversation.users.length === 1) {
+          if (chat.users.length === 1) {
             return <div key={index}></div>;
           }
-          if (conversation.latestMessage === undefined) {
-            // console.log("No Latest Message with ", conversation.users[1]);
+          if (chat.latestMessage === undefined) {
             return (
               <div
                 key={index}
                 onClick={() => {
-                  console.log("Refresh fired from sidebar");
-                  // dispatch(refreshSidebarFun());
-                  setRefresh(!refresh);
+                  dispatch(setRefresh(!refresh));
                 }}
               >
                 <div
                   key={index}
-                  className="conversation-container"
+                  className={
+                    "conversation-container" + (lightTheme ? "" : " dark")
+                  }
                   onClick={() => {
-                    navigate(
-                      "chat/" + conversation._id + "&" + conReceiver.username
-                    );
+                    dispatch(setSelectedChat(chat));
+                    navigate(`chat/${conReceiver.username}`);
                   }}
                   // dispatch change to refresh so as to update chatArea
                 >
@@ -152,7 +144,9 @@ const Sidebar = () => {
                     {conReceiver.username}
                   </p>
 
-                  <p className="con-lastMessage">
+                  <p
+                    className={"con-lastMessage" + (lightTheme ? "" : " dark")}
+                  >
                     No previous Messages, click here to start a new chat
                   </p>
                   {/* <p className={"con-timeStamp" + (lightTheme ? "" : " dark")}>
@@ -165,11 +159,12 @@ const Sidebar = () => {
             return (
               <div
                 key={index}
-                className="conversation-container"
+                className={
+                  "conversation-container" + (lightTheme ? "" : " dark")
+                }
                 onClick={() => {
-                  navigate(
-                    "chat/" + conversation._id + "&" + conReceiver.username
-                  );
+                  dispatch(setSelectedChat(chat));
+                  navigate(`chat/${conReceiver.username}`);
                 }}
               >
                 <p className={"con-icon" + (lightTheme ? "" : " dark")}>
@@ -179,8 +174,8 @@ const Sidebar = () => {
                   {conReceiver.username}
                 </p>
 
-                <p className="con-lastMessage">
-                  {conversation.latestMessage.content}
+                <p className={"con-lastMessage" + (lightTheme ? "" : " dark")}>
+                  {chat.latestMessage.content}
                 </p>
                 {/* <p className={"con-timeStamp" + (lightTheme ? "" : " dark")}>
                   {conversation.timeStamp}

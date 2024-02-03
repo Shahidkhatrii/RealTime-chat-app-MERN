@@ -3,7 +3,16 @@ import { useSelector } from "react-redux";
 
 const MessageOthers = ({ props }) => {
   const lightTheme = useSelector((state) => state.themeKey);
-  console.log(props);
+  const createTime = props?.createdAt;
+  const timestampDate = createTime ? new Date(createTime) : null;
+  const timeString = timestampDate
+    ? timestampDate.toLocaleTimeString([], {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      })
+    : null;
+
   return (
     <div className={"other-message-container" + (lightTheme ? "" : " dark")}>
       <div className={"conversation-card" + (lightTheme ? "" : " dark")}>
@@ -19,9 +28,11 @@ const MessageOthers = ({ props }) => {
           <p className={"con-lastmassege" + (lightTheme ? "" : " lessdark")}>
             {props.content}
           </p>
-          <p className={"self-timeStamp" + (lightTheme ? "" : " lessdark")}>
-            12:05
-          </p>
+          {timeString && (
+            <p className={"self-timeStamp" + (lightTheme ? "" : " lessdark")}>
+              {timeString}
+            </p>
+          )}
         </div>
       </div>
     </div>

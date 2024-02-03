@@ -1,18 +1,17 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import logo from "../../../icons/logo.png";
 import { IconButton } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import SearchIcon from "@mui/icons-material/Search";
 import { AnimatePresence, motion } from "framer-motion";
-import { myContext } from "./MainContainer";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import api from "../api/chatapi";
-import { refreshSidebarFun } from "../Features/refreshSideBar";
+import { setRefresh } from "../Features/refreshSlice";
 
 const Groups = () => {
-  const { refresh, setRefresh } = useContext(myContext);
-
+  // const { refresh, setRefresh } = useContext(myContext);
+  const refresh = useSelector((state) => state.refreshKey);
   const lightTheme = useSelector((state) => state.themeKey);
   const dispatch = useDispatch();
 
@@ -37,7 +36,7 @@ const Groups = () => {
     api.get("/chat/fetchGroup", config).then((response) => {
       setGroups(response.data);
     });
-  }, [refresh]);
+  }, []);
 
   return (
     <AnimatePresence>
@@ -60,7 +59,7 @@ const Groups = () => {
           <IconButton
             className="icon"
             onClick={() => {
-              setRefresh(!refresh);
+              dispatch(setRefresh(!refresh));
             }}
           >
             <RefreshIcon />

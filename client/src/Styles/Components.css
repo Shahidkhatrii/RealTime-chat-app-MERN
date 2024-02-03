@@ -4,6 +4,10 @@
     transition: 0.3s;
 }
 
+/* .darkHover:hover {
+    background-color: #ffffff !important;
+} */
+
 .lessdark {
     background-color: #3c4c56 !important;
     color: whitesmoke !important;
@@ -44,7 +48,6 @@
     flex: 0.7;
     display: flex;
     flex-direction: column;
-
 }
 
 .ca-header {

@@ -6,14 +6,15 @@ import SearchIcon from "@mui/icons-material/Search";
 import api from "../api/chatapi";
 import { AnimatePresence, motion } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
-import { myContext } from "./MainContainer";
 import { useNavigate } from "react-router-dom";
-import refreshSideBar from "../Features/refreshSideBar";
+import { setRefresh } from "../Features/refreshSlice";
+
 const Users = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const lightTheme = useSelector((state) => state.themeKey);
-  const { refresh, setRefresh } = useContext(myContext);
+
+  const refresh = useSelector((state) => state.refreshKey);
   const [users, setUsers] = useState([]);
   const userData = JSON.parse(localStorage.getItem("UserData") || "");
 
@@ -54,7 +55,12 @@ const Users = () => {
           <p className={"ug-title" + (lightTheme ? "" : " dark")}>
             Available Users
           </p>
-          <IconButton className={"icon" + (lightTheme ? "" : " dark")}>
+          <IconButton
+            className={"icon" + (lightTheme ? "" : " dark")}
+            onClick={() => {
+              dispatch(setRefresh(!refresh));
+            }}
+          >
             <RefreshIcon />
           </IconButton>
         </div>
@@ -89,7 +95,7 @@ const Users = () => {
                     },
                     config
                   );
-                  dispatch(refreshSideBar);
+                  dispatch(setRefresh(!refresh));
                 }}
               >
                 <p className={"con-icon" + (lightTheme ? "" : " dark")}>
