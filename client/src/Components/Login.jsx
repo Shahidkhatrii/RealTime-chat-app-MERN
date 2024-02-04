@@ -15,7 +15,6 @@ const Login = () => {
 
   const changeHandler = (e) => {
     setData({ ...data, [e.target.name]: e.target.value });
-    console.log(data);
   };
 
   const LoginHandler = async () => {
@@ -33,7 +32,7 @@ const Login = () => {
       localStorage.setItem("UserData", JSON.stringify(response));
       navigate("/app/welcome");
     } catch (error) {
-      console.log(error);
+      console.error(error);
       if (error.response.status === 401) {
         setLogInStatus({
           msg: "Invalid User name or Password",
@@ -60,12 +59,11 @@ const Login = () => {
       };
       const response = await api.post("user/register", data, config);
       setSignInStatus({ msg: "Success", key: Math.random() });
-      console.log(response);
       navigate("/app/welcome");
       localStorage.setItem("UserData", JSON.stringify(response));
       setLoading(false);
     } catch (error) {
-      console.log(error);
+      console.error(error);
       if (error.response.status === 405) {
         setSignInStatus({
           msg: "User with this email ID already Exists",

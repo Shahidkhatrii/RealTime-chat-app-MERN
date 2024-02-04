@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import logo from "../../../icons/logo.png";
 import { IconButton } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
@@ -17,9 +17,8 @@ const Users = () => {
   const refresh = useSelector((state) => state.refreshKey);
   const [users, setUsers] = useState([]);
   const userData = JSON.parse(localStorage.getItem("UserData") || "");
-
+  const [loaded, setLoaded] = useState(false);
   if (!userData) {
-    console.log("Not authenticated user");
     navigate(-1);
   }
   useEffect(() => {
@@ -31,7 +30,7 @@ const Users = () => {
     };
     api.get("user/fetchUsers", config).then((response) => {
       setUsers(response.data);
-      console.log("useEffect");
+      setLoaded(true);
     });
   }, [refresh]);
 
@@ -74,8 +73,29 @@ const Users = () => {
           />
         </div>
         <div className={"ug-list" + (lightTheme ? "" : " dark")}>
+          {!loaded && (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                padding: "20px",
+              }}
+            >
+              Loading...
+            </div>
+          )}
+          {loaded && users.length === 0 && (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                padding: "20px",
+              }}
+            >
+              No users available
+            </div>
+          )}
           {users.map((user) => {
-            console.log(user, "usersss....");
             return (
               <motion.div
                 whileHover={{ scale: 1.01 }}

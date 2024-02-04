@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import "../Styles/Components.css";
 import AccountCircleSharpIcon from "@mui/icons-material/AccountCircleSharp";
 import { IconButton } from "@mui/material";
@@ -21,15 +21,14 @@ const Sidebar = () => {
   const lightTheme = useSelector((state) => state.themeKey);
   const selectedChat = useSelector((state) => state.chatSlice.selectedChat);
   const chats = useSelector((state) => state.chatSlice.chats);
-  // const { refresh, setRefresh } = useContext(myContext);
   const refresh = useSelector((state) => state.refreshKey);
   const userData = JSON.parse(localStorage.getItem("UserData") || null);
+  const [loaded, setLoaded] = useState(false);
   if (!userData) {
     navigate("/");
   }
-  console.log(chats, "All chats");
   const user = userData.data;
-  console.log(user);
+
   useEffect(() => {
     const config = {
       headers: {
@@ -39,12 +38,14 @@ const Sidebar = () => {
     };
     api.get("chat/", config).then(({ data }) => {
       dispatch(setChats(data));
+      setLoaded(true);
     });
   }, [refresh, selectedChat]);
   const handleLogout = () => {
     localStorage.removeItem("UserData");
     navigate("/");
   };
+
   return (
     <div className="Sidebar-area">
       <div className={"sb-header" + (lightTheme ? "" : " dark")}>
@@ -107,8 +108,29 @@ const Sidebar = () => {
         />
       </div>
       <div className={"sb-conversations" + (lightTheme ? "" : " dark")}>
+        {!loaded && (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+            }}
+          >
+            Loading...
+          </div>
+        )}
+        {loaded && chats.length === 0 && (
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              padding: "20px",
+            }}
+          >
+            No previous chats, go to available users and click on user to start
+            chat.
+          </div>
+        )}
         {chats.map((chat, index) => {
-          console.log(chat, "displaying chats...");
           const conReceiver =
             chat.users[0]._id === user._id ? chat.users[1] : chat.users[0];
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { IconButton } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
@@ -18,25 +18,19 @@ function ChatArea() {
   const lightTheme = useSelector((state) => state.themeKey);
   const [messageContent, setMessageContent] = useState("");
   const selectedChat = useSelector((state) => state.chatSlice.selectedChat);
-  const messagesEndRef = useRef(null);
+  // const messagesEndRef = useRef(null);
   const refresh = useSelector((state) => state.refreshKey);
-  console.log(selectedChat, "chat user from id param");
-  // console.log(chat_id, chat_user);
   const userData = JSON.parse(localStorage.getItem("UserData") || "");
-  console.log(userData, "userdata....");
   const navigate = useNavigate();
   if (!userData) {
     navigate("/");
   }
   const [allMessages, setAllMessages] = useState([]);
-  // console.log("Chat area id : ", chat_id._id);
-  // const refresh = useSelector((state) => state.refreshKey);
-  // const { refresh, setRefresh } = useContext(myContext);
   const [loaded, setloaded] = useState(false);
 
   const fetchMessages = async () => {
     if (!selectedChat) return;
-    console.log("fETCH USEEFFECT.......");
+
     const config = {
       headers: {
         Authorization: `Bearer ${userData.data.token}`,
@@ -68,7 +62,7 @@ function ChatArea() {
       setAllMessages([...allMessages, data]);
       dispatch(setRefresh(!refresh));
     } catch (error) {
-      console.log(error);
+      console.error(error?.message);
     }
   };
   // const scrollToBottom = () => {
@@ -79,6 +73,7 @@ function ChatArea() {
     socket = io(ENDPOINT);
     socket.emit("setup", userData);
   }, []);
+
   //fetch chats
   useEffect(() => {
     if (!selectedChat || selectedChat === null) {
@@ -93,16 +88,14 @@ function ChatArea() {
   useEffect(() => {
     socket.on("message received", (newMessage) => {
       if (!selectedChatCompare || selectedChatCompare !== newMessage.chat._id) {
-        console.log("if", selectedChat, newMessage.chat._id);
+        // notification logic will go here
       } else {
-        console.log("else if", selectedChat, newMessage.chat._id);
         const updatedMessages = [...allMessages, newMessage];
         setAllMessages(updatedMessages);
         dispatch(setRefresh(!refresh));
       }
     });
   });
-
   if (!loaded) {
     return (
       <div
@@ -121,6 +114,7 @@ function ChatArea() {
           variant="rectangular"
           sx={{ width: "98%", borderRadius: "10px" }}
           height={60}
+          className={lightTheme ? "" : "dark"}
         />
         <Skeleton
           variant="rectangular"
@@ -129,11 +123,16 @@ function ChatArea() {
             borderRadius: "10px",
             flexGrow: "1",
           }}
+          className={lightTheme ? "" : "dark"}
         />
         <Skeleton
           variant="rectangular"
-          sx={{ width: "98%", borderRadius: "10px" }}
+          sx={{
+            width: "98%",
+            borderRadius: "10px",
+          }}
           height={60}
+          className={lightTheme ? "" : "dark"}
         />
       </div>
     );
@@ -142,7 +141,6 @@ function ChatArea() {
       selectedChat?.users[0]._id === userData.data._id
         ? selectedChat?.users[1]
         : selectedChat?.users[0];
-    console.log(chat_user, "chat user...");
     return (
       <div className={"chat-area-container" + (lightTheme ? "" : " dark")}>
         <div className={"ca-header" + (lightTheme ? "" : " dark")}>
@@ -162,6 +160,11 @@ function ChatArea() {
           </IconButton>
         </div>
         <div className={"ca-message-area" + (lightTheme ? "" : " dark")}>
+          {allMessages.length === 0 && (
+            <div style={{ display: "flex", justifyContent: "center" }}>
+              No previous Messages, start a new chat
+            </div>
+          )}
           {allMessages
             .slice(0)
             .reverse()
@@ -169,15 +172,13 @@ function ChatArea() {
               const sender = message.sender;
               const self_id = userData.data._id;
               if (sender._id === self_id) {
-                // console.log("I sent it ");
                 return <MessageSelf props={message} key={index} />;
               } else {
-                // console.log("Someone Sent it");
                 return <MessageOthers props={message} key={index} />;
               }
             })}
         </div>
-        <div ref={messagesEndRef} className="BOTTOM" />
+        {/* <div ref={messagesEndRef} className="BOTTOM" /> */}
         <div className={"ca-text-input" + (lightTheme ? "" : " dark")}>
           <input
             placeholder="Type a Message"
@@ -188,7 +189,6 @@ function ChatArea() {
             }}
             onKeyDown={(event) => {
               if (event.code == "Enter") {
-                // console.log(event);
                 sendMessage();
                 setMessageContent("");
                 dispatch(setRefresh(!refresh));

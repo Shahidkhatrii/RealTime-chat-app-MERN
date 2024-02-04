@@ -16,7 +16,7 @@ const Groups = () => {
   const dispatch = useDispatch();
 
   const [groups, setGroups] = useState([]);
-
+  const [loaded, setLoaded] = useState(false);
   const userData = JSON.parse(localStorage.getItem("UserData"));
 
   const navigate = useNavigate();
@@ -35,6 +35,7 @@ const Groups = () => {
     };
     api.get("/chat/fetchGroup", config).then((response) => {
       setGroups(response.data);
+      setLoaded(true);
     });
   }, []);
 
@@ -74,6 +75,28 @@ const Groups = () => {
         </div>
 
         <div className="ug-list">
+          {!loaded && (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                padding: "20px",
+              }}
+            >
+              Loading...
+            </div>
+          )}
+          {loaded && groups.length === 0 && (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                padding: "20px",
+              }}
+            >
+              No groups available
+            </div>
+          )}
           {groups.map((group, index) => {
             return (
               <motion.div

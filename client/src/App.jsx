@@ -26,12 +26,6 @@ function App() {
           </Route>
         </Routes>
         <div className="background-div"></div>
-        {/* <MainContainer /> */}
-        {/* <Users /> */}
-        {/* <Groups /> */}
-        {/* <CreateGroup /> */}
-        {/* <Welcome /> */}
-        {/* <ChatArea {...conversations[0]} /> */}
       </div>
     </>
   );
