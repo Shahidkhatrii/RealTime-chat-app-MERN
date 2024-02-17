@@ -1,13 +1,32 @@
 import React, { useEffect, useState } from "react";
 import logo from "../../../icons/logo.png";
-import { IconButton } from "@mui/material";
+import {
+  Button,
+  CircularProgress,
+  IconButton,
+  ThemeProvider,
+  Tooltip,
+} from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import SearchIcon from "@mui/icons-material/Search";
+import AddIcon from "@mui/icons-material/Add";
 import api from "../api/chatapi";
 import { AnimatePresence, motion } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { setRefresh } from "../Features/refreshSlice";
+import { createTheme } from "@mui/material/styles";
+
+const theme = createTheme({
+  palette: {
+    themeColor: {
+      main: "#63d7b0",
+      light: "#8ae5c7",
+      dark: "#31d49e",
+      contrastText: "#242105",
+    },
+  },
+});
 
 const Users = () => {
   const navigate = useNavigate();
@@ -74,14 +93,8 @@ const Users = () => {
         </div>
         <div className={"ug-list" + (lightTheme ? "" : " dark")}>
           {!loaded && (
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                padding: "20px",
-              }}
-            >
-              Loading...
+            <div className="progress-container">
+              <CircularProgress color="inherit" />
             </div>
           )}
           {loaded && users.length === 0 && (
@@ -95,41 +108,77 @@ const Users = () => {
               No users available
             </div>
           )}
-          {users.map((user) => {
-            return (
-              <motion.div
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
-                className={"list-tem" + (lightTheme ? "" : " dark")}
-                key={user._id}
-                onClick={() => {
-                  const config = {
-                    headers: {
-                      authorization: `Bearer ${userData.data.token}`,
-                    },
-                  };
-                  api.post(
-                    "chat/",
-                    {
-                      userId: user._id,
-                    },
-                    config
-                  );
-                  dispatch(setRefresh(!refresh));
-                }}
-              >
-                <p className={"con-icon" + (lightTheme ? "" : " dark")}>
-                  {user.username[0]}
-                </p>
-                <p
-                  className={"con-title" + (lightTheme ? "" : " dark")}
-                  style={{ marginLeft: "10px" }}
+          {loaded &&
+            users.map((user) => {
+              return (
+                <motion.div
+                  className={"list-tem" + (lightTheme ? "" : " dark")}
+                  key={user._id}
                 >
-                  {user.username}
-                </p>
-              </motion.div>
-            );
-          })}
+                  <div
+                    className={"user-list-name" + (lightTheme ? "" : " dark")}
+                  >
+                    <p className={"con-icon" + (lightTheme ? "" : " dark")}>
+                      {user.username[0]}
+                    </p>
+                    <p
+                      className={"con-title" + (lightTheme ? "" : " dark")}
+                      style={{ marginLeft: "10px" }}
+                    >
+                      {user.username}
+                    </p>
+                  </div>
+                  <ThemeProvider theme={theme}>
+                    <Button
+                      variant="contained"
+                      color="themeColor"
+                      startIcon={<AddIcon />}
+                      sx={{ borderRadius: "10px" }}
+                      onClick={async () => {
+                        const config = {
+                          headers: {
+                            authorization: `Bearer ${userData.data.token}`,
+                          },
+                        };
+                        await api.post(
+                          "chat/",
+                          {
+                            userId: user._id,
+                          },
+                          config
+                        );
+                        dispatch(setRefresh(!refresh));
+                      }}
+                    >
+                      Add
+                    </Button>
+                  </ThemeProvider>
+
+                  {/* <Tooltip title="Add">
+                    <IconButton
+                      className={"icon" + (lightTheme ? "" : " dark")}
+                      onClick={async () => {
+                        const config = {
+                          headers: {
+                            authorization: `Bearer ${userData.data.token}`,
+                          },
+                        };
+                        await api.post(
+                          "chat/",
+                          {
+                            userId: user._id,
+                          },
+                          config
+                        );
+                        dispatch(setRefresh(!refresh));
+                      }}
+                    >
+                      <AddIcon />
+                    </IconButton>
+                  </Tooltip> */}
+                </motion.div>
+              );
+            })}
         </div>
       </motion.div>
     </AnimatePresence>

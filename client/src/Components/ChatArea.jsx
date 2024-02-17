@@ -98,18 +98,7 @@ function ChatArea() {
   });
   if (!loaded) {
     return (
-      <div
-        style={{
-          flex: "0.7",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          padding: "10px 0 10px 0",
-          border: "20px",
-          gap: "10px",
-        }}
-      >
+      <div className="ca-skeleton">
         <Skeleton
           variant="rectangular"
           sx={{ width: "98%", borderRadius: "10px" }}

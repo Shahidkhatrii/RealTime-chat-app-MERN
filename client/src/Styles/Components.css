@@ -24,6 +24,10 @@
     height: 1.25em !important;
 }
 
+.forMobile {
+    display: none;
+}
+
 .main-container {
     background-color: #f4f5f8;
     height: 92vh;
@@ -83,6 +87,18 @@
     justify-content: space-between;
     box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
 }
+
+.ca-skeleton {
+    flex: 0.7;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 10px 0 10px 0;
+    border: 20px;
+    gap: 10px;
+}
+
 
 .sb-header {
     background-color: #ffff;
@@ -437,6 +453,7 @@
 .list-tem {
     display: flex;
     align-items: center;
+    justify-content: space-between;
     background-color: white;
     box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
     border-radius: 20px;
@@ -457,13 +474,43 @@
     justify-content: space-evenly;
 }
 
+.progress-container {
+    height: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.user-list-name {
+    display: flex;
+    align-items: center;
+}
+
+
 @media only screen and (max-width: 40em) {
+    .forMobile {
+        display: block;
+    }
+
+
+
     .sb-search {
         display: none;
     }
 
     .sb-conversations {
         display: none;
+    }
+
+    .sb-conversations-mobile {
+        position: relative;
+        background-color: #ffff;
+        border-radius: 20px;
+        padding: 10px 5px;
+        margin: 10px;
+        flex: 1;
+        overflow: auto;
+        box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
     }
 
     .sb-header {
@@ -478,6 +525,11 @@
 
     .chat-area-container {
         flex: 1;
+    }
+
+    .ca-skeleton {
+        flex: 1;
+        padding: 5px;
     }
 
     .createGroup-container {
@@ -504,6 +556,10 @@
         margin: 0;
         font-size: 1rem;
         flex: 0;
+    }
+
+    .list-tem {
+        margin: 5px 0px;
     }
 
     .welcome-container {

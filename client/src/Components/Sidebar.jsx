@@ -1,13 +1,20 @@
 import React, { useEffect, useState } from "react";
 import "../Styles/Components.css";
 import AccountCircleSharpIcon from "@mui/icons-material/AccountCircleSharp";
-import { IconButton } from "@mui/material";
+import {
+  CircularProgress,
+  IconButton,
+  Tooltip,
+  Zoom,
+  useMediaQuery,
+} from "@mui/material";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import GroupAddIcon from "@mui/icons-material/GroupAdd";
 import AddCircleIcon from "@mui/icons-material/AddCircle";
 import NightlightIcon from "@mui/icons-material/Nightlight";
 import LogoutIcon from "@mui/icons-material/Logout";
 import LightModeIcon from "@mui/icons-material/LightMode";
+import ChatIcon from "@mui/icons-material/Chat";
 import SearchIcon from "@mui/icons-material/Search";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -16,6 +23,7 @@ import api from "../api/chatapi";
 import { setChats, setSelectedChat } from "../Features/chatSlice";
 import { setRefresh } from "../Features/refreshSlice";
 const Sidebar = () => {
+  const matches = useMediaQuery("(min-width:40em)");
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const lightTheme = useSelector((state) => state.themeKey);
@@ -30,71 +38,101 @@ const Sidebar = () => {
   const user = userData.data;
 
   useEffect(() => {
-    const config = {
-      headers: {
-        "content-type": "application/json",
-        authorization: `Bearer ${user.token}`,
-      },
-    };
-    api.get("chat/", config).then(({ data }) => {
-      dispatch(setChats(data));
+    const fetchChat = async () => {
+      const config = {
+        headers: {
+          "content-type": "application/json",
+          authorization: `Bearer ${user.token}`,
+        },
+      };
+      await api.get("chat/", config).then(({ data }) => {
+        dispatch(setChats(data));
+      });
       setLoaded(true);
-    });
-  }, [refresh, selectedChat]);
+    };
+    if (matches) {
+      fetchChat();
+    }
+  }, [refresh, selectedChat, matches]);
   const handleLogout = () => {
     localStorage.removeItem("UserData");
     navigate("/");
   };
-
   return (
     <div className="Sidebar-area">
       <div className={"sb-header" + (lightTheme ? "" : " dark")}>
         <div>
-          <IconButton
-            onClick={() => {
-              navigate("/app/welcome");
-            }}
-          >
-            <AccountCircleSharpIcon
-              className={"icon" + (lightTheme ? "" : " dark")}
-            />
-          </IconButton>
-        </div>
-        <div className="other-icons">
-          <IconButton
-            onClick={() => {
-              navigate("users");
-            }}
-          >
-            <PersonAddIcon className={"icon" + (lightTheme ? "" : " dark")} />
-          </IconButton>
-          <IconButton
-            onClick={() => {
-              navigate("groups");
-            }}
-          >
-            <GroupAddIcon className={"icon" + (lightTheme ? "" : " dark")} />
-          </IconButton>
-          <IconButton
-            onClick={() => {
-              navigate("create-groups");
-            }}
-          >
-            <AddCircleIcon className={"icon" + (lightTheme ? "" : " dark")} />
-          </IconButton>
-          <IconButton onClick={() => dispatch(toggleTheme())}>
-            {lightTheme && (
-              <NightlightIcon
+          <Tooltip TransitionComponent={Zoom} title="Profile" arrow>
+            <IconButton
+              onClick={() => {
+                navigate("/app/welcome");
+              }}
+            >
+              <AccountCircleSharpIcon
                 className={"icon" + (lightTheme ? "" : " dark")}
               />
-            )}
-            {!lightTheme && (
-              <LightModeIcon className={"icon" + (lightTheme ? "" : " dark")} />
-            )}
-          </IconButton>
-          <IconButton onClick={handleLogout}>
-            <LogoutIcon className={"icon" + (lightTheme ? "" : " dark")} />
-          </IconButton>
+            </IconButton>
+          </Tooltip>
+        </div>
+        <div className="other-icons">
+          <div className="forMobile">
+            <Tooltip TransitionComponent={Zoom} title="Profile" arrow>
+              <IconButton
+                onClick={() => {
+                  navigate("/app/");
+                }}
+              >
+                <ChatIcon className={"icon" + (lightTheme ? "" : " dark")} />
+              </IconButton>
+            </Tooltip>
+          </div>
+
+          <Tooltip TransitionComponent={Zoom} title="Users" arrow>
+            <IconButton
+              onClick={() => {
+                navigate("users");
+              }}
+            >
+              <PersonAddIcon className={"icon" + (lightTheme ? "" : " dark")} />
+            </IconButton>
+          </Tooltip>
+          <Tooltip TransitionComponent={Zoom} title="Groups" arrow>
+            <IconButton
+              onClick={() => {
+                navigate("groups");
+              }}
+            >
+              <GroupAddIcon className={"icon" + (lightTheme ? "" : " dark")} />
+            </IconButton>
+          </Tooltip>
+          <Tooltip TransitionComponent={Zoom} title="Create group" arrow>
+            <IconButton
+              onClick={() => {
+                navigate("create-groups");
+              }}
+            >
+              <AddCircleIcon className={"icon" + (lightTheme ? "" : " dark")} />
+            </IconButton>
+          </Tooltip>
+          <Tooltip TransitionComponent={Zoom} title="Theme" arrow>
+            <IconButton onClick={() => dispatch(toggleTheme())}>
+              {lightTheme && (
+                <NightlightIcon
+                  className={"icon" + (lightTheme ? "" : " dark")}
+                />
+              )}
+              {!lightTheme && (
+                <LightModeIcon
+                  className={"icon" + (lightTheme ? "" : " dark")}
+                />
+              )}
+            </IconButton>
+          </Tooltip>
+          <Tooltip TransitionComponent={Zoom} title="Logout" arrow>
+            <IconButton onClick={handleLogout}>
+              <LogoutIcon className={"icon" + (lightTheme ? "" : " dark")} />
+            </IconButton>
+          </Tooltip>
         </div>
       </div>
       <div className={"sb-search" + (lightTheme ? "" : " dark")}>
@@ -109,13 +147,8 @@ const Sidebar = () => {
       </div>
       <div className={"sb-conversations" + (lightTheme ? "" : " dark")}>
         {!loaded && (
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-            }}
-          >
-            Loading...
+          <div className="progress-container">
+            <CircularProgress color="inherit" />
           </div>
         )}
         {loaded && chats.length === 0 && (
@@ -130,24 +163,64 @@ const Sidebar = () => {
             chat.
           </div>
         )}
-        {chats.map((chat, index) => {
-          const conReceiver =
-            chat.users[0]._id === user._id ? chat.users[1] : chat.users[0];
+        {loaded &&
+          chats.map((chat, index) => {
+            let conName;
+            if (chat.isGroupChat) {
+              conName = chat.chatName;
+            } else {
+              conName =
+                chat.users[0]._id === user._id
+                  ? chat.users[1]?.username
+                  : chat.users[0].username;
+            }
+            if (chat.users.length === 1) {
+              // if (conversation.users.length === 1) {
+              //   return <div key={index}></div>;
+              // } else {
+              return <div key={index}></div>;
+            }
+            if (chat.latestMessage === undefined) {
+              return (
+                <div
+                  key={index}
+                  onClick={() => {
+                    dispatch(setRefresh(!refresh));
+                  }}
+                >
+                  <div
+                    key={index}
+                    className={
+                      "conversation-container" + (lightTheme ? "" : " dark")
+                    }
+                    onClick={() => {
+                      dispatch(setSelectedChat(chat));
+                      navigate(`chat/${conName}`);
+                    }}
+                    // dispatch change to refresh so as to update chatArea
+                  >
+                    <p className={"con-icon" + (lightTheme ? "" : " dark")}>
+                      {conName[0]}
+                    </p>
+                    <p className={"con-title" + (lightTheme ? "" : " dark")}>
+                      {conName}
+                    </p>
 
-          // if (conversation.users.length === 1) {
-          //   return <div key={index}></div>;
-          // } else {
-          if (chat.users.length === 1) {
-            return <div key={index}></div>;
-          }
-          if (chat.latestMessage === undefined) {
-            return (
-              <div
-                key={index}
-                onClick={() => {
-                  dispatch(setRefresh(!refresh));
-                }}
-              >
+                    <p
+                      className={
+                        "con-lastMessage" + (lightTheme ? "" : " dark")
+                      }
+                    >
+                      No previous Messages, click here to start a new chat
+                    </p>
+                    {/* <p className={"con-timeStamp" + (lightTheme ? "" : " dark")}>
+                  {conversation.timeStamp}
+                </p> */}
+                  </div>
+                </div>
+              );
+            } else {
+              return (
                 <div
                   key={index}
                   className={
@@ -155,57 +228,28 @@ const Sidebar = () => {
                   }
                   onClick={() => {
                     dispatch(setSelectedChat(chat));
-                    navigate(`chat/${conReceiver.username}`);
+                    navigate(`chat/${conName}`);
                   }}
-                  // dispatch change to refresh so as to update chatArea
                 >
                   <p className={"con-icon" + (lightTheme ? "" : " dark")}>
-                    {conReceiver.username[0]}
+                    {conName[0]}
                   </p>
                   <p className={"con-title" + (lightTheme ? "" : " dark")}>
-                    {conReceiver.username}
+                    {conName}
                   </p>
 
                   <p
                     className={"con-lastMessage" + (lightTheme ? "" : " dark")}
                   >
-                    No previous Messages, click here to start a new chat
+                    {chat.latestMessage.content}
                   </p>
                   {/* <p className={"con-timeStamp" + (lightTheme ? "" : " dark")}>
                   {conversation.timeStamp}
                 </p> */}
                 </div>
-              </div>
-            );
-          } else {
-            return (
-              <div
-                key={index}
-                className={
-                  "conversation-container" + (lightTheme ? "" : " dark")
-                }
-                onClick={() => {
-                  dispatch(setSelectedChat(chat));
-                  navigate(`chat/${conReceiver.username}`);
-                }}
-              >
-                <p className={"con-icon" + (lightTheme ? "" : " dark")}>
-                  {conReceiver.username[0]}
-                </p>
-                <p className={"con-title" + (lightTheme ? "" : " dark")}>
-                  {conReceiver.username}
-                </p>
-
-                <p className={"con-lastMessage" + (lightTheme ? "" : " dark")}>
-                  {chat.latestMessage.content}
-                </p>
-                {/* <p className={"con-timeStamp" + (lightTheme ? "" : " dark")}>
-                  {conversation.timeStamp}
-                </p> */}
-              </div>
-            );
-          }
-        })}
+              );
+            }
+          })}
       </div>
     </div>
   );

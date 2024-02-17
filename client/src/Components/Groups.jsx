@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import logo from "../../../icons/logo.png";
-import { IconButton } from "@mui/material";
+import { Button, IconButton, ThemeProvider, createTheme } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import SearchIcon from "@mui/icons-material/Search";
 import { AnimatePresence, motion } from "framer-motion";
@@ -8,9 +9,17 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import api from "../api/chatapi";
 import { setRefresh } from "../Features/refreshSlice";
-
+const theme = createTheme({
+  palette: {
+    themeColor: {
+      main: "#63d7b0",
+      light: "#8ae5c7",
+      dark: "#31d49e",
+      contrastText: "#242105",
+    },
+  },
+});
 const Groups = () => {
-  // const { refresh, setRefresh } = useContext(myContext);
   const refresh = useSelector((state) => state.refreshKey);
   const lightTheme = useSelector((state) => state.themeKey);
   const dispatch = useDispatch();
@@ -37,7 +46,7 @@ const Groups = () => {
       setGroups(response.data);
       setLoaded(true);
     });
-  }, []);
+  }, [refresh]);
 
   return (
     <AnimatePresence>
@@ -51,14 +60,16 @@ const Groups = () => {
         }}
         className="list-container"
       >
-        <div className="ug-header">
+        <div className={"ug-header" + (lightTheme ? "" : " dark")}>
           <img
             src={logo}
             style={{ height: "2rem", width: "2rem", marginLeft: "10px" }}
           />
-          <p className="ug-title">Available Groups</p>
+          <p className={"ug-title" + (lightTheme ? "" : " dark")}>
+            Available Groups
+          </p>
           <IconButton
-            className="icon"
+            className={"icon" + (lightTheme ? "" : " dark")}
             onClick={() => {
               dispatch(setRefresh(!refresh));
             }}
@@ -67,14 +78,17 @@ const Groups = () => {
           </IconButton>
         </div>
 
-        <div className="sb-search">
-          <IconButton className="icon">
+        <div className={"sb-search" + (lightTheme ? "" : " dark")}>
+          <IconButton className={"icon" + (lightTheme ? "" : " dark")}>
             <SearchIcon />
           </IconButton>
-          <input placeholder="Search" className="search-box" />
+          <input
+            placeholder="Search"
+            className={"search-box" + (lightTheme ? "" : " dark")}
+          />
         </div>
 
-        <div className="ug-list">
+        <div className={"ug-list" + (lightTheme ? "" : " dark")}>
           {!loaded && (
             <div
               style={{
@@ -100,19 +114,40 @@ const Groups = () => {
           {groups.map((group, index) => {
             return (
               <motion.div
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.98 }}
                 className={"list-tem" + (lightTheme ? "" : " dark")}
                 key={index}
-                onClick={() => {
-                  console.log("Creating chat with group", group.chatName);
-                  dispatch(refreshSidebarFun());
-                }}
               >
-                <p className={"con-icon" + (lightTheme ? "" : " dark")}>T</p>
-                <p className={"con-title" + (lightTheme ? "" : " dark")}>
-                  {group.chatName}
-                </p>
+                <div className="user-list-name">
+                  <p className={"con-icon" + (lightTheme ? "" : " dark")}>T</p>
+                  <p className={"con-title" + (lightTheme ? "" : " dark")}>
+                    {group.chatName}
+                  </p>
+                </div>
+                <ThemeProvider theme={theme}>
+                  <Button
+                    variant="contained"
+                    color="themeColor"
+                    startIcon={<AddIcon />}
+                    sx={{ borderRadius: "10px" }}
+                    onClick={async () => {
+                      const config = {
+                        headers: {
+                          authorization: `Bearer ${userData.data.token}`,
+                        },
+                      };
+                      await api.post(
+                        "chat/",
+                        {
+                          userId: group._id,
+                        },
+                        config
+                      );
+                      dispatch(setRefresh(!refresh));
+                    }}
+                  >
+                    Add
+                  </Button>
+                </ThemeProvider>
               </motion.div>
             );
           })}
