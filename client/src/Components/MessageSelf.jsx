@@ -1,6 +1,8 @@
 import React from "react";
+import { useSelector } from "react-redux";
 
 const MessageSelf = ({ props }) => {
+  const lightTheme = useSelector((state) => state.themeKey);
   const createTime = props?.createdAt;
   const timestampDate = createTime ? new Date(createTime) : null;
   const timeString = timestampDate

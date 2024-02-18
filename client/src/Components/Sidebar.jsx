@@ -32,6 +32,7 @@ const Sidebar = () => {
   const refresh = useSelector((state) => state.refreshKey);
   const userData = JSON.parse(localStorage.getItem("UserData") || null);
   const [loaded, setLoaded] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
   if (!userData) {
     navigate("/");
   }
@@ -46,14 +47,17 @@ const Sidebar = () => {
         },
       };
       await api.get("chat/", config).then(({ data }) => {
-        dispatch(setChats(data));
+        const filterChat = data.filter((chat) =>
+          chat.chatName.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        dispatch(setChats(filterChat));
       });
       setLoaded(true);
     };
     if (matches) {
       fetchChat();
     }
-  }, [refresh, selectedChat, matches]);
+  }, [refresh, selectedChat, matches, searchTerm]);
   const handleLogout = () => {
     localStorage.removeItem("UserData");
     navigate("/");
@@ -62,7 +66,7 @@ const Sidebar = () => {
     <div className="Sidebar-area">
       <div className={"sb-header" + (lightTheme ? "" : " dark")}>
         <div>
-          <Tooltip TransitionComponent={Zoom} title="Profile" arrow>
+          <Tooltip TransitionComponent={Zoom} title={user.username} arrow>
             <IconButton
               onClick={() => {
                 navigate("/app/welcome");
@@ -142,6 +146,11 @@ const Sidebar = () => {
 
         <input
           placeholder="search"
+          value={searchTerm}
+          onChange={(e) => {
+            setSearchTerm(e.target.value);
+            setLoaded(false);
+          }}
           className={"search-box" + (lightTheme ? "" : " dark")}
         />
       </div>

@@ -126,27 +126,29 @@ function ChatArea() {
       </div>
     );
   } else {
-    const chat_user =
-      selectedChat?.users[0]._id === userData.data._id
-        ? selectedChat?.users[1]
-        : selectedChat?.users[0];
+    let conName;
+    if (selectedChat.isGroupChat) {
+      conName = selectedChat.chatName;
+    } else {
+      conName =
+        selectedChat.users[0]._id === userData.data._id
+          ? selectedChat.users[1]?.username
+          : selectedChat.users[0].username;
+    }
     return (
       <div className={"chat-area-container" + (lightTheme ? "" : " dark")}>
         <div className={"ca-header" + (lightTheme ? "" : " dark")}>
           <p className={"con-icon" + (lightTheme ? "" : " dark")}>
-            {chat_user.username[0]}
+            {conName[0]}
           </p>
           <div className={"header-text" + (lightTheme ? "" : " dark")}>
             <p className={"con-title" + (lightTheme ? "" : " dark")}>
-              {chat_user.username}
+              {conName}
             </p>
-            {/* <p className={"con-timeStamp" + (lightTheme ? "" : " dark")}>
-              {props.timeStamp}
-            </p> */}
           </div>
-          <IconButton className={"icon" + (lightTheme ? "" : " dark")}>
+          {/* <IconButton className={"icon" + (lightTheme ? "" : " dark")}>
             <DeleteIcon />
-          </IconButton>
+          </IconButton> */}
         </div>
         <div className={"ca-message-area" + (lightTheme ? "" : " dark")}>
           {allMessages.length === 0 && (

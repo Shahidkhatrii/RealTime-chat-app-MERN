@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from "react";
 import logo from "../../../icons/logo.png";
-import { Button, IconButton, ThemeProvider, createTheme } from "@mui/material";
+import {
+  Button,
+  CircularProgress,
+  IconButton,
+  ThemeProvider,
+  createTheme,
+} from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import SearchIcon from "@mui/icons-material/Search";
@@ -90,14 +96,8 @@ const Groups = () => {
 
         <div className={"ug-list" + (lightTheme ? "" : " dark")}>
           {!loaded && (
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                padding: "20px",
-              }}
-            >
-              Loading...
+            <div className="progress-container">
+              <CircularProgress color="inherit" />
             </div>
           )}
           {loaded && groups.length === 0 && (
