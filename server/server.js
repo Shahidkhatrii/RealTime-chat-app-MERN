@@ -8,7 +8,6 @@ const errorHandler = require("./middleware/errorHandler");
 const { Server } = require("socket.io");
 const { createServer } = require("http");
 const cors = require("cors");
-const { log } = require("console");
 dotenv.config();
 
 connectDb();
