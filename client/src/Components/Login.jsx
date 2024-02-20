@@ -30,7 +30,7 @@ const Login = () => {
       setLogInStatus({ msg: "Success", key: Math.random() });
       setLoading(false);
       localStorage.setItem("UserData", JSON.stringify(response));
-      navigate("/app/welcome");
+      navigate("/app/chat/welcome");
     } catch (error) {
       console.error(error);
       if (error.response.status === 401) {
@@ -59,7 +59,7 @@ const Login = () => {
       };
       const response = await api.post("user/register", data, config);
       setSignInStatus({ msg: "Success", key: Math.random() });
-      navigate("/app/welcome");
+      navigate("/app/chat/welcome");
       localStorage.setItem("UserData", JSON.stringify(response));
       setLoading(false);
     } catch (error) {

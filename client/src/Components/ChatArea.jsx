@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import DeleteIcon from "@mui/icons-material/Delete";
 import { IconButton } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import MessageSelf from "./MessageSelf";
@@ -10,6 +9,8 @@ import Skeleton from "@mui/material/Skeleton";
 import api from "../api/chatapi";
 import { io } from "socket.io-client";
 import { setRefresh } from "../Features/refreshSlice";
+import Welcome from "./Welcome";
+import { setNotifications } from "../Features/chatSlice";
 
 const ENDPOINT = "http://localhost:5000";
 var socket, selectedChatCompare;
@@ -18,6 +19,7 @@ function ChatArea() {
   const lightTheme = useSelector((state) => state.themeKey);
   const [messageContent, setMessageContent] = useState("");
   const selectedChat = useSelector((state) => state.chatSlice.selectedChat);
+  const notifications = useSelector((state) => state.chatSlice.notifications);
   // const messagesEndRef = useRef(null);
   const refresh = useSelector((state) => state.refreshKey);
   const userData = JSON.parse(localStorage.getItem("UserData") || "");
@@ -27,7 +29,7 @@ function ChatArea() {
   }
   const [allMessages, setAllMessages] = useState([]);
   const [loaded, setloaded] = useState(false);
-
+  console.log(notifications);
   const fetchMessages = async () => {
     if (!selectedChat) return;
 
@@ -77,7 +79,7 @@ function ChatArea() {
   //fetch chats
   useEffect(() => {
     if (!selectedChat || selectedChat === null) {
-      navigate("/app/welcome");
+      navigate("/app/chat/welcome");
     }
     fetchMessages();
     selectedChatCompare = selectedChat?._id;
@@ -89,6 +91,8 @@ function ChatArea() {
     socket.on("message received", (newMessage) => {
       if (!selectedChatCompare || selectedChatCompare !== newMessage.chat._id) {
         // notification logic will go here
+        dispatch(setNotifications([...notifications, newMessage]));
+        console.log(newMessage, "new...");
       } else {
         const updatedMessages = [...allMessages, newMessage];
         setAllMessages(updatedMessages);
@@ -96,7 +100,9 @@ function ChatArea() {
       }
     });
   });
-  if (!loaded) {
+  if (!selectedChat) {
+    return <Welcome />;
+  } else if (!loaded) {
     return (
       <div className="ca-skeleton">
         <Skeleton

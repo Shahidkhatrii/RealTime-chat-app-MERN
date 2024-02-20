@@ -22,7 +22,7 @@ import api from "../api/chatapi";
 import "../Styles/Components.css";
 import { setRefresh } from "../Features/refreshSlice";
 import Pill from "./Pill";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 const theme = createTheme({
   palette: {
     themeColor: {
@@ -100,7 +100,6 @@ const CreateGroup = () => {
   };
 
   const handleKeyDown = (e) => {
-    console.log(e.key);
     if (
       e.key === "Backspace" &&
       e.target.value === "" &&
@@ -126,174 +125,172 @@ const CreateGroup = () => {
 
   return (
     <>
-      <AnimatePresence>
-        <motion.div
-          initial={{ opacity: 0, scale: 0 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0 }}
-          transition={{
-            ease: "anticipate",
-            duration: "0.3",
-          }}
-          className={"list-container" + (lightTheme ? "" : " dark")}
-        >
-          <div className={"ug-header" + (lightTheme ? "" : " dark")}>
-            <img
-              src={logo}
-              style={{ height: "2rem", width: "2rem", marginLeft: "10px" }}
-            />
-            <p className={"ug-title" + (lightTheme ? "" : " dark")}>
-              Create Group
-            </p>
+      <motion.div
+        initial={{ opacity: 0, scale: 0 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0 }}
+        transition={{
+          ease: "anticipate",
+          duration: "0.3",
+        }}
+        className={"list-container" + (lightTheme ? "" : " dark")}
+      >
+        <div className={"ug-header" + (lightTheme ? "" : " dark")}>
+          <img
+            src={logo}
+            style={{ height: "2rem", width: "2rem", marginLeft: "10px" }}
+          />
+          <p className={"ug-title" + (lightTheme ? "" : " dark")}>
+            Create Group
+          </p>
+          <IconButton
+            className={"icon" + (lightTheme ? "" : " dark")}
+            onClick={() => {
+              dispatch(setRefresh(!refresh));
+            }}
+          >
+            <RefreshIcon />
+          </IconButton>
+        </div>
+        <div className={"createGroup-box" + (lightTheme ? "" : " dark")}>
+          <input
+            placeholder="Enter Group Name"
+            className={"search-box" + (lightTheme ? "" : " dark")}
+            onChange={(e) => {
+              setGroupName(e.target.value);
+            }}
+            onKeyDown={(e) => {
+              if (
+                groupName !== "" &&
+                selectedMembers.length > 0 &&
+                e.key === "Enter"
+              ) {
+                handleClickOpen();
+              }
+            }}
+          />
+          {groupName !== "" && selectedMembers.length > 0 && (
             <IconButton
               className={"icon" + (lightTheme ? "" : " dark")}
               onClick={() => {
-                dispatch(setRefresh(!refresh));
+                handleClickOpen();
               }}
             >
-              <RefreshIcon />
+              <DoneOutlineRoundedIcon />
             </IconButton>
-          </div>
-          <div className={"createGroup-box" + (lightTheme ? "" : " dark")}>
-            <input
-              placeholder="Enter Group Name"
-              className={"search-box" + (lightTheme ? "" : " dark")}
-              onChange={(e) => {
-                setGroupName(e.target.value);
-              }}
-              onKeyDown={(e) => {
-                if (
-                  groupName !== "" &&
-                  selectedMembers.length > 0 &&
-                  e.key === "Enter"
-                ) {
-                  handleClickOpen();
-                }
-              }}
-            />
-            {groupName !== "" && selectedMembers.length > 0 && (
-              <IconButton
-                className={"icon" + (lightTheme ? "" : " dark")}
-                onClick={() => {
-                  handleClickOpen();
-                }}
-              >
-                <DoneOutlineRoundedIcon />
-              </IconButton>
-            )}
-          </div>
+          )}
+        </div>
 
-          <div className={"cg-search" + (lightTheme ? "" : " dark")}>
-            <IconButton className={"icon" + (lightTheme ? "" : " dark")}>
-              <SearchIcon />
-            </IconButton>
-            {selectedMembers.map((user) => {
-              return (
-                <Pill
+        <div className={"cg-search" + (lightTheme ? "" : " dark")}>
+          <IconButton className={"icon" + (lightTheme ? "" : " dark")}>
+            <SearchIcon />
+          </IconButton>
+          {selectedMembers.map((selectedMember) => {
+            return (
+              <Pill
+                key={selectedMember._id}
+                text={selectedMember.username}
+                onClick={() => handleRemoveUser(selectedMember)}
+              />
+            );
+          })}
+          <input
+            placeholder="Add members"
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+            }}
+            onKeyDown={handleKeyDown}
+            ref={inputRef}
+            value={searchTerm}
+            className={"cg-search-box" + (lightTheme ? "" : " dark")}
+          />
+        </div>
+
+        <div className={"ug-list" + (lightTheme ? "" : " dark")}>
+          {!loaded && (
+            <div className="progress-container">
+              <CircularProgress color="inherit" />
+            </div>
+          )}
+          {loaded && users.length === 0 && (
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                padding: "20px",
+              }}
+            >
+              No users available
+            </div>
+          )}
+          {loaded &&
+            users.map((user) => {
+              return !selectedMembersSet.has(user._id) ? (
+                <div
+                  className={"list-tem" + (lightTheme ? "" : " dark")}
                   key={user._id}
-                  text={user.username}
-                  onClick={() => handleRemoveUser(user)}
-                />
+                >
+                  <div
+                    className={"user-list-name" + (lightTheme ? "" : " dark")}
+                  >
+                    <p className={"con-icon" + (lightTheme ? "" : " dark")}>
+                      {user.username[0]}
+                    </p>
+                    <p
+                      className={"con-title" + (lightTheme ? "" : " dark")}
+                      style={{ marginLeft: "10px" }}
+                    >
+                      {user.username}
+                    </p>
+                  </div>
+                  <ThemeProvider theme={theme}>
+                    <Button
+                      variant="contained"
+                      color="themeColor"
+                      startIcon={<AddIcon />}
+                      sx={{ borderRadius: "10px" }}
+                      onClick={() => handleSelectMembers(user)}
+                    >
+                      Add
+                    </Button>
+                  </ThemeProvider>
+                </div>
+              ) : (
+                <></>
               );
             })}
-            <input
-              placeholder="Add members"
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-              }}
-              onKeyDown={handleKeyDown}
-              ref={inputRef}
-              value={searchTerm}
-              className={"cg-search-box" + (lightTheme ? "" : " dark")}
-            />
-          </div>
-
-          <div className={"ug-list" + (lightTheme ? "" : " dark")}>
-            {!loaded && (
-              <div className="progress-container">
-                <CircularProgress color="inherit" />
-              </div>
-            )}
-            {loaded && users.length === 0 && (
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "center",
-                  padding: "20px",
-                }}
-              >
-                No users available
-              </div>
-            )}
-            {loaded &&
-              users.map((user) => {
-                return !selectedMembersSet.has(user._id) ? (
-                  <motion.div
-                    className={"list-tem" + (lightTheme ? "" : " dark")}
-                    key={user._id}
-                  >
-                    <div
-                      className={"user-list-name" + (lightTheme ? "" : " dark")}
-                    >
-                      <p className={"con-icon" + (lightTheme ? "" : " dark")}>
-                        {user.username[0]}
-                      </p>
-                      <p
-                        className={"con-title" + (lightTheme ? "" : " dark")}
-                        style={{ marginLeft: "10px" }}
-                      >
-                        {user.username}
-                      </p>
-                    </div>
-                    <ThemeProvider theme={theme}>
-                      <Button
-                        variant="contained"
-                        color="themeColor"
-                        startIcon={<AddIcon />}
-                        sx={{ borderRadius: "10px" }}
-                        onClick={() => handleSelectMembers(user)}
-                      >
-                        Add
-                      </Button>
-                    </ThemeProvider>
-                  </motion.div>
-                ) : (
-                  ""
-                );
-              })}
-          </div>
-        </motion.div>
-        <div>
-          <Dialog
-            open={open}
-            onClose={handleClose}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
-          >
-            <DialogTitle id="alert-dialog-title">
-              {"Do you want to create a Group Named " + groupName}
-            </DialogTitle>
-            <DialogContent>
-              <DialogContentText id="alert-dialog-description">
-                This will create a create group in which you will be the admin
-                and other will be able to join this group.
-              </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={handleClose}>Disagree</Button>
-              <Button
-                onClick={() => {
-                  createGroup();
-                  handleClose();
-                }}
-                autoFocus
-              >
-                Agree
-              </Button>
-            </DialogActions>
-          </Dialog>
         </div>
-      </AnimatePresence>
+      </motion.div>
+      <div>
+        <Dialog
+          open={open}
+          onClose={handleClose}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">
+            {"Do you want to create a Group Named " + groupName}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              This will create a create group in which you will be the admin and
+              other will be able to join this group.
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose}>Disagree</Button>
+            <Button
+              onClick={() => {
+                createGroup();
+                handleClose();
+              }}
+              autoFocus
+            >
+              Agree
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </div>
     </>
   );
 };

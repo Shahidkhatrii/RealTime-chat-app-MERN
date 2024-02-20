@@ -20,7 +20,6 @@ function App() {
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="app" element={<MainContainer />}>
-            <Route path="welcome" element={<Welcome />}></Route>
             <Route
               path=""
               element={matches ? <MobileChats /> : <Welcome />}

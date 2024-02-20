@@ -3,6 +3,7 @@ import logo from "../../../icons/logo.png";
 import { useSelector } from "react-redux";
 const Welcome = () => {
   const lightTheme = useSelector((state) => state.themeKey);
+
   return (
     <div className={"welcome-container" + (lightTheme ? " " : " dark")}>
       <img

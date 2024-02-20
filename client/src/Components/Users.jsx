@@ -6,16 +6,19 @@ import {
   IconButton,
   ThemeProvider,
   Tooltip,
+  selectClasses,
 } from "@mui/material";
 import RefreshIcon from "@mui/icons-material/Refresh";
 import SearchIcon from "@mui/icons-material/Search";
-import AddIcon from "@mui/icons-material/Add";
+
+import SendRoundedIcon from "@mui/icons-material/SendRounded";
 import api from "../api/chatapi";
 import { AnimatePresence, motion } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { setRefresh } from "../Features/refreshSlice";
 import { createTheme } from "@mui/material/styles";
+import { setSelectedChat } from "../Features/chatSlice";
 
 const theme = createTheme({
   palette: {
@@ -132,7 +135,7 @@ const Users = () => {
                     <Button
                       variant="contained"
                       color="themeColor"
-                      startIcon={<AddIcon />}
+                      endIcon={<SendRoundedIcon />}
                       sx={{ borderRadius: "10px" }}
                       onClick={async () => {
                         const config = {
@@ -140,17 +143,30 @@ const Users = () => {
                             authorization: `Bearer ${userData.data.token}`,
                           },
                         };
-                        await api.post(
+                        const { data } = await api.post(
                           "chat/",
                           {
                             userId: user._id,
                           },
                           config
                         );
+
+                        console.log(data);
+                        let conName;
+                        if (data.isGroupChat) {
+                          conName = data.chatName;
+                        } else {
+                          conName =
+                            data.users[0]._id === userData.data._id
+                              ? data.users[1]?.username
+                              : data.users[0].username;
+                        }
                         dispatch(setRefresh(!refresh));
+                        dispatch(setSelectedChat(data));
+                        navigate(`../chat/${conName}`);
                       }}
                     >
-                      Add
+                      Send Message
                     </Button>
                   </ThemeProvider>
 

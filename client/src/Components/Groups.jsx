@@ -145,7 +145,7 @@ const Groups = () => {
                       dispatch(setRefresh(!refresh));
                     }}
                   >
-                    Add
+                    Join
                   </Button>
                 </ThemeProvider>
               </motion.div>

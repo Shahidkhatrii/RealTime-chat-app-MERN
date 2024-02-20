@@ -4,8 +4,13 @@ import AccountCircleSharpIcon from "@mui/icons-material/AccountCircleSharp";
 import {
   CircularProgress,
   IconButton,
+  Menu,
+  MenuItem,
+  ThemeProvider,
   Tooltip,
+  Typography,
   Zoom,
+  createTheme,
   useMediaQuery,
 } from "@mui/material";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
@@ -14,14 +19,37 @@ import AddCircleIcon from "@mui/icons-material/AddCircle";
 import NightlightIcon from "@mui/icons-material/Nightlight";
 import LogoutIcon from "@mui/icons-material/Logout";
 import LightModeIcon from "@mui/icons-material/LightMode";
+import CloseRoundedIcon from "@mui/icons-material/CloseRounded";
+import NotificationsIcon from "@mui/icons-material/Notifications";
 import ChatIcon from "@mui/icons-material/Chat";
 import SearchIcon from "@mui/icons-material/Search";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import Badge from "@mui/material/Badge";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { toggleTheme } from "../Features/themeSlice";
 import api from "../api/chatapi";
-import { setChats, setSelectedChat } from "../Features/chatSlice";
+import {
+  setChats,
+  setNotifications,
+  setSelectedChat,
+} from "../Features/chatSlice";
 import { setRefresh } from "../Features/refreshSlice";
+import { AnimatePresence, motion } from "framer-motion";
+const variants = {
+  open: { opacity: 1, x: 0 },
+  closed: { opacity: 0, x: "100%" },
+};
+const theme = createTheme({
+  palette: {
+    themeColor: {
+      main: "#63d7b0",
+      light: "#8ae5c7",
+      dark: "#31d49e",
+      contrastText: "#242105",
+    },
+  },
+});
 const Sidebar = () => {
   const matches = useMediaQuery("(min-width:40em)");
   const navigate = useNavigate();
@@ -29,15 +57,37 @@ const Sidebar = () => {
   const lightTheme = useSelector((state) => state.themeKey);
   const selectedChat = useSelector((state) => state.chatSlice.selectedChat);
   const chats = useSelector((state) => state.chatSlice.chats);
+  const notifications = useSelector((state) => state.chatSlice.notifications);
   const refresh = useSelector((state) => state.refreshKey);
   const userData = JSON.parse(localStorage.getItem("UserData") || null);
   const [loaded, setLoaded] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  const [toggleMoreOptions, setToggleMoreOptions] = useState(false);
+  const handleClick = () => {
+    setToggleMoreOptions(!toggleMoreOptions);
+  };
+  const handleClose = () => {
+    setToggleMoreOptions(!toggleMoreOptions);
+  };
+
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const open = Boolean(anchorEl);
+  const handleNotificationClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleNotificationClose = () => {
+    setAnchorEl(null);
+  };
+
   if (!userData) {
     navigate("/");
   }
   const user = userData.data;
-
+  const handleLogout = () => {
+    localStorage.removeItem("UserData");
+    dispatch(setSelectedChat(null));
+    navigate("/");
+  };
   useEffect(() => {
     const fetchChat = async () => {
       const config = {
@@ -58,10 +108,7 @@ const Sidebar = () => {
       fetchChat();
     }
   }, [refresh, selectedChat, matches, searchTerm]);
-  const handleLogout = () => {
-    localStorage.removeItem("UserData");
-    navigate("/");
-  };
+
   return (
     <div className="Sidebar-area">
       <div className={"sb-header" + (lightTheme ? "" : " dark")}>
@@ -69,7 +116,7 @@ const Sidebar = () => {
           <Tooltip TransitionComponent={Zoom} title={user.username} arrow>
             <IconButton
               onClick={() => {
-                navigate("/app/welcome");
+                navigate("/app/chat/welcome");
               }}
             >
               <AccountCircleSharpIcon
@@ -109,36 +156,142 @@ const Sidebar = () => {
               <GroupAddIcon className={"icon" + (lightTheme ? "" : " dark")} />
             </IconButton>
           </Tooltip>
-          <Tooltip TransitionComponent={Zoom} title="Create group" arrow>
-            <IconButton
-              onClick={() => {
-                navigate("create-groups");
+
+          <div>
+            <ThemeProvider theme={theme}>
+              <Tooltip TransitionComponent={Zoom} title="Notifications" arrow>
+                <IconButton
+                  id="notification-button"
+                  aria-controls={open ? "notification-menu" : undefined}
+                  aria-haspopup="true"
+                  aria-expanded={open ? "true" : undefined}
+                  onClick={handleNotificationClick}
+                >
+                  <Badge badgeContent={notifications.length} color="themeColor">
+                    <NotificationsIcon
+                      className={"icon" + (lightTheme ? "" : " dark")}
+                    />
+                  </Badge>
+                </IconButton>
+              </Tooltip>
+            </ThemeProvider>
+
+            <Menu
+              id="notification-menu"
+              anchorEl={anchorEl}
+              open={open}
+              onClose={handleNotificationClose}
+              MenuListProps={{
+                "aria-labelledby": "notification-button",
+              }}
+              anchorOrigin={{
+                vertical: "bottom",
+                horizontal: "center",
+              }}
+              transformOrigin={{
+                vertical: "top",
+                horizontal: "center",
               }}
             >
-              <AddCircleIcon className={"icon" + (lightTheme ? "" : " dark")} />
-            </IconButton>
-          </Tooltip>
-          <Tooltip TransitionComponent={Zoom} title="Theme" arrow>
-            <IconButton onClick={() => dispatch(toggleTheme())}>
-              {lightTheme && (
-                <NightlightIcon
+              {notifications.length === 0 && (
+                <MenuItem onClick={handleNotificationClose}>
+                  <Typography variant="inherit" noWrap>
+                    No New Messages
+                  </Typography>
+                </MenuItem>
+              )}
+              {notifications.map((newMessage) => {
+                let conName;
+                if (newMessage.chat.isGroupChat) {
+                  conName = newMessage.chat.chatName;
+                } else {
+                  conName = newMessage.sender.username;
+                }
+                return (
+                  <MenuItem
+                    key={newMessage._id}
+                    onClick={() => {
+                      dispatch(setSelectedChat(newMessage.chat));
+                      navigate(`chat/${conName}`);
+                      const updateNotifications = notifications.filter(
+                        (notification) => notification._id !== newMessage._id
+                      );
+                      dispatch(setNotifications(updateNotifications));
+                      handleNotificationClose();
+                    }}
+                  >
+                    <Typography variant="inherit" noWrap>
+                      New Message in
+                      <span style={{ color: "#63d7b0" }}> {conName}</span>
+                    </Typography>
+                  </MenuItem>
+                );
+              })}
+            </Menu>
+          </div>
+
+          <AnimatePresence>
+            <motion.div
+              animate={toggleMoreOptions ? "open" : "closed"}
+              variants={variants}
+              className={
+                "sb-more-options" + (toggleMoreOptions ? "" : " close")
+              }
+            >
+              <Tooltip TransitionComponent={Zoom} title="Create group" arrow>
+                <IconButton onClick={() => navigate("create-groups")}>
+                  <AddCircleIcon
+                    className={"icon" + (lightTheme ? "" : " dark")}
+                  />
+                </IconButton>
+              </Tooltip>
+
+              <Tooltip TransitionComponent={Zoom} title="Theme" arrow>
+                <IconButton onClick={() => dispatch(toggleTheme())}>
+                  {lightTheme && (
+                    <NightlightIcon
+                      className={"icon" + (lightTheme ? "" : " dark")}
+                    />
+                  )}
+                  {!lightTheme && (
+                    <LightModeIcon
+                      className={"icon" + (lightTheme ? "" : " dark")}
+                    />
+                  )}
+                </IconButton>
+              </Tooltip>
+
+              <Tooltip TransitionComponent={Zoom} title="Logout" arrow>
+                <IconButton onClick={handleLogout}>
+                  <LogoutIcon
+                    className={"icon" + (lightTheme ? "" : " dark")}
+                  />
+                </IconButton>
+              </Tooltip>
+            </motion.div>
+          </AnimatePresence>
+        </div>
+        <div>
+          {toggleMoreOptions ? (
+            <Tooltip TransitionComponent={Zoom} title="Close" arrow>
+              <IconButton onClick={handleClose}>
+                <CloseRoundedIcon
                   className={"icon" + (lightTheme ? "" : " dark")}
                 />
-              )}
-              {!lightTheme && (
-                <LightModeIcon
+              </IconButton>
+            </Tooltip>
+          ) : (
+            <Tooltip TransitionComponent={Zoom} title="More" arrow>
+              <IconButton onClick={handleClick}>
+                <MoreVertIcon
                   className={"icon" + (lightTheme ? "" : " dark")}
                 />
-              )}
-            </IconButton>
-          </Tooltip>
-          <Tooltip TransitionComponent={Zoom} title="Logout" arrow>
-            <IconButton onClick={handleLogout}>
-              <LogoutIcon className={"icon" + (lightTheme ? "" : " dark")} />
-            </IconButton>
-          </Tooltip>
+              </IconButton>
+            </Tooltip>
+          )}
         </div>
       </div>
+
       <div className={"sb-search" + (lightTheme ? "" : " dark")}>
         <IconButton>
           <SearchIcon className={"icon" + (lightTheme ? "" : " dark")} />
