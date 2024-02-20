@@ -1,6 +1,6 @@
 const asyncHandler = require("express-async-handler");
-const Chat = require("../models/chatModel");
-const User = require("../models/userModel");
+const Chat = require("../Models/chatModel");
+const User = require("../Models/userModel");
 
 //@desc access or create chat between two persons
 //@route POST /chat/

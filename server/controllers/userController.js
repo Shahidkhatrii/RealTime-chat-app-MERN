@@ -1,9 +1,6 @@
 const asyncHandler = require("express-async-handler");
-const path = require("path");
 const bcrypt = require("bcrypt");
-// userController.js
-const UserModel = require(path.join(__dirname, "../models/userModel"));
-
+const User = require("../Models/userModel");
 const generateToken = require("../config/generateToken");
 
 //@desc login a user
