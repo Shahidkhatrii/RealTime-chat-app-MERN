@@ -130,7 +130,7 @@ const Sidebar = () => {
             <Tooltip TransitionComponent={Zoom} title="Profile" arrow>
               <IconButton
                 onClick={() => {
-                  navigate("/app/");
+                  navigate("/app/chat");
                 }}
               >
                 <ChatIcon className={"icon" + (lightTheme ? "" : " dark")} />

@@ -645,4 +645,9 @@
         height: 20vh;
 
     }
+
+    .list-tem,
+    .list-tem>Button {
+        font-size: 0.7rem !important;
+    }
 }

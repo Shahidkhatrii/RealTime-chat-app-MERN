@@ -166,7 +166,7 @@ const Users = () => {
                         navigate(`../chat/${conName}`);
                       }}
                     >
-                      Send Message
+                      Start chat
                     </Button>
                   </ThemeProvider>
 

@@ -2,13 +2,14 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import api from "../api/chatapi";
-import { CircularProgress, IconButton } from "@mui/material";
+import { CircularProgress, IconButton, useMediaQuery } from "@mui/material";
 import { setRefresh } from "../Features/refreshSlice";
 import { setChats, setSelectedChat } from "../Features/chatSlice";
 import { AnimatePresence, motion } from "framer-motion";
 import logo from "../../../icons/logo.png";
 import RefreshIcon from "@mui/icons-material/Refresh";
 const MobileChats = () => {
+  const matches = useMediaQuery("(min-width:40em)");
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const lightTheme = useSelector((state) => state.themeKey);
@@ -19,6 +20,8 @@ const MobileChats = () => {
   const [loaded, setLoaded] = useState(false);
   if (!userData) {
     navigate("/");
+  } else if (matches) {
+    navigate("/app/chat/Welcome");
   }
   const user = userData.data;
   useEffect(() => {
@@ -115,7 +118,7 @@ const MobileChats = () => {
                       }
                       onClick={() => {
                         dispatch(setSelectedChat(chat));
-                        navigate(`chat/${conName}`);
+                        navigate(conName);
                       }}
                       // dispatch change to refresh so as to update chatArea
                     >
@@ -148,7 +151,7 @@ const MobileChats = () => {
                     }
                     onClick={() => {
                       dispatch(setSelectedChat(chat));
-                      navigate(`chat/${conName}`);
+                      navigate(conName);
                     }}
                   >
                     <p className={"con-icon" + (lightTheme ? "" : " dark")}>
