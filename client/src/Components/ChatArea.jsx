@@ -12,7 +12,7 @@ import { setRefresh } from "../Features/refreshSlice";
 import Welcome from "./Welcome";
 import { setNotifications } from "../Features/chatSlice";
 
-const ENDPOINT = "http://localhost:5000";
+const ENDPOINT = "https://realtime-chat-server-sgpt.onrender.com/";
 var socket, selectedChatCompare;
 function ChatArea() {
   const dispatch = useDispatch();
