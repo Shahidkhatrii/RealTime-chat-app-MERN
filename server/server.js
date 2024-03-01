@@ -46,8 +46,8 @@ io.on("connection", (socket) => {
     // console.log("users joined room:", room);
   });
   socket.on("newMessage", (newMessageStatus) => {
-    console.log("new message....");
-    console.log(newMessageStatus, "new msg...");
+    // console.log("new message....");
+    // console.log(newMessageStatus, "new msg...");
     var chat = newMessageStatus.chat;
     if (!chat.users) {
       return console.log("chat.users not defined");
@@ -55,7 +55,7 @@ io.on("connection", (socket) => {
     chat.users.forEach((user) => {
       if (user._id == newMessageStatus.sender._id) return;
       socket.in(user._id).emit("message received", newMessageStatus);
-      console.log("message received emitted...");
+      // console.log("message received emitted...");
     });
   });
 });

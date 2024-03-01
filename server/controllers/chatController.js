@@ -118,8 +118,20 @@ const createGroupChat = asyncHandler(async (req, res) => {
 //@access private
 const groupExit = asyncHandler(async (req, res) => {
   const { chatId, userId } = req.body;
+  const chat = await Chat.findById(chatId).populate("groupAdmin", "-password");
 
-  //check if requester is admin
+  if (!chat) {
+    res.status(404);
+    throw new Error("Chat not found");
+  }
+
+  const isAdmin = chat.groupAdmin && chat.groupAdmin._id.toString() === userId.toString();
+
+  if (isAdmin) {
+    res.status(403);
+    throw new Error("Admin can not leave the group");
+  }
+
   const removed = await Chat.findByIdAndUpdate(
     chatId,
     {

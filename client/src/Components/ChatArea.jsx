@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { IconButton } from "@mui/material";
+import { IconButton, Tooltip, Zoom } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
+import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import MessageSelf from "./MessageSelf";
 import MessageOthers from "./MessageOthers";
 import { useDispatch, useSelector } from "react-redux";
@@ -10,13 +11,15 @@ import api from "../api/chatapi";
 import { io } from "socket.io-client";
 import { setRefresh } from "../Features/refreshSlice";
 import Welcome from "./Welcome";
-import { setNotifications } from "../Features/chatSlice";
+import { setNotifications, setSelectedChat } from "../Features/chatSlice";
+import Toaster from "./Toaster";
 
-const ENDPOINT = "http://localhost:5000";
+const ENDPOINT = "https://realtime-chat-server-sgpt.onrender.com/";
 var socket, selectedChatCompare;
 function ChatArea() {
   const dispatch = useDispatch();
   const lightTheme = useSelector((state) => state.themeKey);
+  const [groupExitStatus, setGroupExitStatus] = useState(null);
   const [messageContent, setMessageContent] = useState("");
   const selectedChat = useSelector((state) => state.chatSlice.selectedChat);
   const notifications = useSelector((state) => state.chatSlice.notifications);
@@ -29,7 +32,8 @@ function ChatArea() {
   }
   const [allMessages, setAllMessages] = useState([]);
   const [loaded, setloaded] = useState(false);
-  console.log(notifications);
+
+  // Fetching messages
   const fetchMessages = async () => {
     if (!selectedChat) return;
 
@@ -45,6 +49,7 @@ function ChatArea() {
     socket.emit("join chat", selectedChat?._id);
   };
 
+  // Sending messages
   const sendMessage = async () => {
     try {
       const config = {
@@ -64,6 +69,37 @@ function ChatArea() {
       setAllMessages([...allMessages, data]);
       dispatch(setRefresh(!refresh));
     } catch (error) {
+      console.error(error?.message);
+    }
+  };
+
+  // Exit from group
+  const HandleGroupExit = async () => {
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${userData.data.token}`,
+        },
+      };
+
+      await api.put(
+        "chat/groupExit",
+        {
+          chatId: selectedChat._id,
+          userId: userData.data._id,
+        },
+        config
+      );
+      setGroupExitStatus({
+        msg: `You have successfully left the group "${selectedChat.chatName}"`,
+        key: Math.random(),
+      });
+      dispatch(setSelectedChat(null));
+    } catch (error) {
+      setGroupExitStatus({
+        msg: `Something went wrong :/`,
+        key: Math.random(),
+      });
       console.error(error?.message);
     }
   };
@@ -101,7 +137,20 @@ function ChatArea() {
     });
   });
   if (!selectedChat) {
-    return <Welcome />;
+    return (
+      <>
+        {groupExitStatus ? (
+          <Toaster
+            key={groupExitStatus.key}
+            message={groupExitStatus.msg}
+            type="success"
+          />
+        ) : (
+          <></>
+        )}
+        <Welcome />
+      </>
+    );
   } else if (!loaded) {
     return (
       <div className="ca-skeleton">
@@ -152,9 +201,21 @@ function ChatArea() {
               {conName}
             </p>
           </div>
-          {/* <IconButton className={"icon" + (lightTheme ? "" : " dark")}>
-            <DeleteIcon />
-          </IconButton> */}
+          {selectedChat.isGroupChat &&
+          !(
+            selectedChat.groupAdmin._id.toString() ===
+            userData.data._id.toString()
+          ) ? (
+            <Tooltip TransitionComponent={Zoom} title="Exit Group" arrow>
+              <IconButton onClick={HandleGroupExit}>
+                <ExitToAppIcon
+                  className={"icon" + (lightTheme ? "" : " dark")}
+                />
+              </IconButton>
+            </Tooltip>
+          ) : (
+            <></>
+          )}
         </div>
         <div className={"ca-message-area" + (lightTheme ? "" : " dark")}>
           {allMessages.length === 0 && (

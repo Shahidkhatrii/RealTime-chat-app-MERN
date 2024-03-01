@@ -135,10 +135,11 @@ const Groups = () => {
                           authorization: `Bearer ${userData.data.token}`,
                         },
                       };
-                      await api.post(
-                        "chat/",
+                      await api.put(
+                        "chat/addSelfToGroup",
                         {
-                          userId: group._id,
+                          chatId: group._id,
+                          userId: userData.data._id,
                         },
                         config
                       );
