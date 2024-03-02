@@ -21,6 +21,9 @@ function ChatArea() {
   const lightTheme = useSelector((state) => state.themeKey);
   const [groupExitStatus, setGroupExitStatus] = useState(null);
   const [messageContent, setMessageContent] = useState("");
+  const [socketConnected, setSocketConnected] = useState(false);
+  const [typing, setTyping] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
   const selectedChat = useSelector((state) => state.chatSlice.selectedChat);
   const notifications = useSelector((state) => state.chatSlice.notifications);
   // const messagesEndRef = useRef(null);
@@ -46,12 +49,12 @@ function ChatArea() {
     const { data } = await api.get("message/" + selectedChat?._id, config);
     setAllMessages(data);
     setloaded(true);
-    socket.emit("join chat", selectedChat?._id);
   };
 
   // Sending messages
   const sendMessage = async () => {
     try {
+      socket.emit("stop typing", selectedChat?._id);
       const config = {
         headers: {
           Authorization: `Bearer ${userData.data.token}`,
@@ -71,6 +74,29 @@ function ChatArea() {
     } catch (error) {
       console.error(error?.message);
     }
+  };
+
+  // Handle typing
+  const typingHandler = (e) => {
+    setMessageContent(e.target.value);
+
+    if (!socketConnected) return;
+
+    if (!typing) {
+      setTyping(true);
+      socket.emit("typing", selectedChat._id);
+    }
+
+    let lastTypingTime = new Date().getTime();
+
+    setTimeout(() => {
+      let currentTime = new Date().getTime();
+      let timeDiff = currentTime - lastTypingTime;
+      if (timeDiff >= 3000 && typing) {
+        socket.emit("stop typing", selectedChat._id);
+        setTyping(false);
+      }
+    }, 3000);
   };
 
   // Exit from group
@@ -110,6 +136,15 @@ function ChatArea() {
   useEffect(() => {
     socket = io(ENDPOINT);
     socket.emit("setup", userData);
+    socket.on("connected", () => {
+      setSocketConnected(true);
+    });
+    socket.on("typing", () => {
+      setIsTyping(true);
+    });
+    socket.on("stop typing", () => {
+      setIsTyping(false);
+    });
   }, []);
 
   //fetch chats
@@ -118,7 +153,12 @@ function ChatArea() {
       navigate("/app/chat/welcome");
     }
     fetchMessages();
+    socket.emit("join chat", selectedChat?._id);
     selectedChatCompare = selectedChat?._id;
+    return () => {
+      setIsTyping(false);
+      socket.emit("leave chat", selectedChat?._id);
+    };
     // scrollToBottom();
   }, [refresh, selectedChat, userData.data.token]);
 
@@ -128,7 +168,6 @@ function ChatArea() {
       if (!selectedChatCompare || selectedChatCompare !== newMessage.chat._id) {
         // notification logic will go here
         dispatch(setNotifications([...notifications, newMessage]));
-        console.log(newMessage, "new...");
       } else {
         const updatedMessages = [...allMessages, newMessage];
         setAllMessages(updatedMessages);
@@ -136,6 +175,7 @@ function ChatArea() {
       }
     });
   });
+
   if (!selectedChat) {
     return (
       <>
@@ -200,10 +240,16 @@ function ChatArea() {
             <p className={"con-title" + (lightTheme ? "" : " dark")}>
               {conName}
             </p>
+            {isTyping &&
+              (selectedChat.isGroupChat ? (
+                <div>Someone is typing...</div>
+              ) : (
+                <div>{conName} is typing...</div>
+              ))}
           </div>
           {selectedChat.isGroupChat &&
           !(
-            selectedChat.groupAdmin._id.toString() ===
+            selectedChat?.groupAdmin?._id?.toString() ===
             userData.data._id.toString()
           ) ? (
             <Tooltip TransitionComponent={Zoom} title="Exit Group" arrow>
@@ -223,6 +269,7 @@ function ChatArea() {
               No previous Messages, start a new chat
             </div>
           )}
+
           {allMessages
             .slice(0)
             .reverse()
@@ -237,14 +284,13 @@ function ChatArea() {
             })}
         </div>
         {/* <div ref={messagesEndRef} className="BOTTOM" /> */}
+
         <div className={"ca-text-input" + (lightTheme ? "" : " dark")}>
           <input
             placeholder="Type a Message"
             className={"search-box" + (lightTheme ? "" : " dark")}
             value={messageContent}
-            onChange={(e) => {
-              setMessageContent(e.target.value);
-            }}
+            onChange={typingHandler}
             onKeyDown={(event) => {
               if (event.code == "Enter") {
                 sendMessage();

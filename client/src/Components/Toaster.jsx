@@ -3,7 +3,6 @@ import CloseIcon from "@mui/icons-material/Close";
 import React from "react";
 
 export default function Toaster({ message, type = "error" }) {
-  console.log(type);
   const [open, setOpen] = React.useState(true);
   function handleClose(event, reason) {
     if (reason === "clickaway") {

@@ -38,13 +38,25 @@ io.on("connection", (socket) => {
   // console.log("new user is connected", socket.id);
   socket.on("setup", (user) => {
     socket.join(user.data._id);
-    // console.log("joined user", user.data._id);
+    socket.emit("connected");
+    console.log("joined user", user.data._id);
   });
 
-  socket.on("join chat", (room) => {
-    socket.join(room);
-    // console.log("users joined room:", room);
+  socket.on("join chat", (room) => socket.join(room));
+  socket.on("leave chat", (room) => {
+    console.log("user left: ", room);
+    socket.leave(room);
   });
+  socket.on("typing", (room) => {
+    console.log("typing in:", room);
+    socket.to(room).emit("typing");
+  });
+
+  socket.on("stop typing", (room) => {
+    console.log("stop typing in:", room);
+    socket.to(room).emit("stop typing");
+  });
+
   socket.on("newMessage", (newMessageStatus) => {
     // console.log("new message....");
     // console.log(newMessageStatus, "new msg...");
@@ -57,6 +69,11 @@ io.on("connection", (socket) => {
       socket.in(user._id).emit("message received", newMessageStatus);
       // console.log("message received emitted...");
     });
+  });
+
+  socket.off("setup", () => {
+    console.log("user disconnected!");
+    socket.leave(user.data._id);
   });
 });
 httpServer.listen(port, () => {
