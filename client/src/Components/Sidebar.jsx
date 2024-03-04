@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import "../Styles/Components.css";
 import AccountCircleSharpIcon from "@mui/icons-material/AccountCircleSharp";
 import {
-  CircularProgress,
   IconButton,
   Menu,
   MenuItem,
@@ -36,20 +35,13 @@ import {
 } from "../Features/chatSlice";
 import { setRefresh } from "../Features/refreshSlice";
 import { AnimatePresence, motion } from "framer-motion";
+import Loading from "./ui/Loading";
+import theme from "../assets/theme/theme.js";
 const variants = {
   open: { opacity: 1, x: 0 },
   closed: { opacity: 0, x: "100%" },
 };
-const theme = createTheme({
-  palette: {
-    themeColor: {
-      main: "#63d7b0",
-      light: "#8ae5c7",
-      dark: "#31d49e",
-      contrastText: "#242105",
-    },
-  },
-});
+
 const Sidebar = () => {
   const matches = useMediaQuery("(min-width:40em)");
   const navigate = useNavigate();
@@ -308,22 +300,12 @@ const Sidebar = () => {
         />
       </div>
       <div className={"sb-conversations" + (lightTheme ? "" : " dark")}>
-        {!loaded && (
-          <div className="progress-container">
-            <CircularProgress color="inherit" />
-          </div>
-        )}
+        {!loaded && <Loading />}
         {loaded && chats.length === 0 && (
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "center",
-              padding: "20px",
-            }}
-          >
-            No previous chats, go to available users and click on user to start
-            chat.
-          </div>
+          <NotAvailable
+            display="No previous chats, go to available users and click on user to start
+          chat."
+          />
         )}
         {loaded &&
           chats.map((chat, index) => {

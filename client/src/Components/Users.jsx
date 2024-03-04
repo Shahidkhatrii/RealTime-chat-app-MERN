@@ -1,10 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  Button,
-  CircularProgress,
-  IconButton,
-  ThemeProvider,
-} from "@mui/material";
+import { Button, IconButton, ThemeProvider } from "@mui/material";
 
 import SearchIcon from "@mui/icons-material/Search";
 
@@ -14,20 +9,12 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { setRefresh } from "../Features/refreshSlice";
-import { createTheme } from "@mui/material/styles";
+
 import { setSelectedChat } from "../Features/chatSlice";
 import ListHeader from "./ui/ListHeader";
-
-const theme = createTheme({
-  palette: {
-    themeColor: {
-      main: "#63d7b0",
-      light: "#8ae5c7",
-      dark: "#31d49e",
-      contrastText: "#242105",
-    },
-  },
-});
+import Loading from "./ui/Loading";
+import NotAvailable from "./ui/NotAvailable";
+import theme from "../assets/theme/theme.js";
 
 const Users = () => {
   const navigate = useNavigate();
@@ -77,21 +64,9 @@ const Users = () => {
           />
         </div>
         <div className={"ug-list" + (lightTheme ? "" : " dark")}>
-          {!loaded && (
-            <div className="progress-container">
-              <CircularProgress color="inherit" />
-            </div>
-          )}
+          {!loaded && <Loading />}
           {loaded && users.length === 0 && (
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                padding: "20px",
-              }}
-            >
-              No users available
-            </div>
+            <NotAvailable display="No users available" />
           )}
           {loaded &&
             users.map((user) => {
@@ -151,29 +126,6 @@ const Users = () => {
                       Start chat
                     </Button>
                   </ThemeProvider>
-
-                  {/* <Tooltip title="Add">
-                    <IconButton
-                      className={"icon" + (lightTheme ? "" : " dark")}
-                      onClick={async () => {
-                        const config = {
-                          headers: {
-                            authorization: `Bearer ${userData.data.token}`,
-                          },
-                        };
-                        await api.post(
-                          "chat/",
-                          {
-                            userId: user._id,
-                          },
-                          config
-                        );
-                        dispatch(setRefresh(!refresh));
-                      }}
-                    >
-                      <AddIcon />
-                    </IconButton>
-                  </Tooltip> */}
                 </motion.div>
               );
             })}

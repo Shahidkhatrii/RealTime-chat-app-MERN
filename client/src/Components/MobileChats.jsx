@@ -2,12 +2,12 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import api from "../api/chatapi";
-import { CircularProgress, IconButton, useMediaQuery } from "@mui/material";
+import { useMediaQuery } from "@mui/material";
 import { setRefresh } from "../Features/refreshSlice";
 import { setChats, setSelectedChat } from "../Features/chatSlice";
 import { AnimatePresence, motion } from "framer-motion";
-import logo from "../assets/logo.png";
-import RefreshIcon from "@mui/icons-material/Refresh";
+import ListHeader from "./ui/ListHeader";
+import Loading from "./ui/Loading";
 const MobileChats = () => {
   const matches = useMediaQuery("(min-width:40em)");
   const navigate = useNavigate();
@@ -51,40 +51,16 @@ const MobileChats = () => {
         }}
         className="list-container"
       >
-        <div className={"ug-header" + (lightTheme ? "" : " dark")}>
-          <img
-            src={logo}
-            style={{ height: "2rem", width: "2rem", marginLeft: "10px" }}
-          />
-          <p className={"ug-title" + (lightTheme ? "" : " dark")}>Chats</p>
-          <IconButton
-            className={"icon" + (lightTheme ? "" : " dark")}
-            onClick={() => {
-              dispatch(setRefresh(!refresh));
-            }}
-          >
-            <RefreshIcon />
-          </IconButton>
-        </div>
+        <ListHeader title="Chats" />
         <div
           className={"sb-conversations-mobile" + (lightTheme ? "" : " dark")}
         >
-          {!loaded && (
-            <div className="progress-container">
-              <CircularProgress color="inherit" />
-            </div>
-          )}
+          {!loaded && <Loading />}
           {loaded && chats.length === 0 && (
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                padding: "20px",
-              }}
-            >
-              No previous chats, go to available users and click on user to
-              start chat.
-            </div>
+            <NotAvailable
+              display="No previous chats, go to available users and click on user to
+            start chat."
+            />
           )}
           {loaded &&
             chats.map((chat, index) => {

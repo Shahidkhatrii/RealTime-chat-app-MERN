@@ -5,7 +5,6 @@ import SearchIcon from "@mui/icons-material/Search";
 
 import {
   Button,
-  CircularProgress,
   Dialog,
   DialogActions,
   DialogContent,
@@ -23,16 +22,9 @@ import { setRefresh } from "../Features/refreshSlice";
 import Pill from "./ui/Pill";
 import { motion } from "framer-motion";
 import ListHeader from "./ui/ListHeader";
-const theme = createTheme({
-  palette: {
-    themeColor: {
-      main: "#63d7b0",
-      light: "#8ae5c7",
-      dark: "#31d49e",
-      contrastText: "#242105",
-    },
-  },
-});
+import Loading from "./ui/Loading";
+import theme from "../assets/theme/theme.js";
+
 const CreateGroup = () => {
   const lightTheme = useSelector((state) => state.themeKey);
   const refresh = useSelector((state) => state.refreshKey);
@@ -208,21 +200,9 @@ const CreateGroup = () => {
         </div>
 
         <div className={"ug-list" + (lightTheme ? "" : " dark")}>
-          {!loaded && (
-            <div className="progress-container">
-              <CircularProgress color="inherit" />
-            </div>
-          )}
+          {!loaded && <Loading />}
           {loaded && users.length === 0 && (
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "center",
-                padding: "20px",
-              }}
-            >
-              No users available
-            </div>
+            <NotAvailable display="No users available" />
           )}
           {loaded &&
             users.map((user) => {

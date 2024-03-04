@@ -1,24 +1,27 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { IconButton, Tooltip, Zoom } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+import ExpandCircleDownIcon from "@mui/icons-material/ExpandCircleDown";
 import MessageSelf from "./MessageBox/MessageSelf";
 import MessageOthers from "./MessageBox/MessageOthers";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import Skeleton from "@mui/material/Skeleton";
 import api from "../api/chatapi";
 import { io } from "socket.io-client";
 import { setRefresh } from "../Features/refreshSlice";
 import Welcome from "./ui/Welcome";
 import { setNotifications, setSelectedChat } from "../Features/chatSlice";
 import Toaster from "./ui/Toaster";
+import NotAvailable from "./ui/NotAvailable";
+import ChatAreaSkeleton from "./ui/ChatAreaSkeleton";
 
 const ENDPOINT = "http://localhost:5000/";
 var socket, selectedChatCompare;
 function ChatArea() {
   const dispatch = useDispatch();
   const lightTheme = useSelector((state) => state.themeKey);
+  const inputRef = useRef(null);
   const [groupExitStatus, setGroupExitStatus] = useState(null);
   const [messageContent, setMessageContent] = useState("");
   const [socketConnected, setSocketConnected] = useState(false);
@@ -130,7 +133,7 @@ function ChatArea() {
     }
   };
   // const scrollToBottom = () => {
-  //   messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  //   messagesEndRef.current?.scrollTo({ top: 0, behavior: "smooth" });
   // };
   // connect to socket
   useEffect(() => {
@@ -147,6 +150,10 @@ function ChatArea() {
     });
   }, []);
 
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, [loaded]);
+
   //fetch chats
   useEffect(() => {
     if (!selectedChat || selectedChat === null) {
@@ -155,6 +162,7 @@ function ChatArea() {
     fetchMessages();
     socket.emit("join chat", selectedChat?._id);
     selectedChatCompare = selectedChat?._id;
+    inputRef.current?.focus();
     return () => {
       setIsTyping(false);
       socket.emit("leave chat", selectedChat?._id);
@@ -193,34 +201,7 @@ function ChatArea() {
       </>
     );
   } else if (!loaded) {
-    return (
-      <div className="ca-skeleton">
-        <Skeleton
-          variant="rectangular"
-          sx={{ width: "98%", borderRadius: "10px" }}
-          height={60}
-          className={lightTheme ? "" : "dark"}
-        />
-        <Skeleton
-          variant="rectangular"
-          sx={{
-            width: "98%",
-            borderRadius: "10px",
-            flexGrow: "1",
-          }}
-          className={lightTheme ? "" : "dark"}
-        />
-        <Skeleton
-          variant="rectangular"
-          sx={{
-            width: "98%",
-            borderRadius: "10px",
-          }}
-          height={60}
-          className={lightTheme ? "" : "dark"}
-        />
-      </div>
-    );
+    return <ChatAreaSkeleton />;
   } else {
     let conName;
     if (selectedChat.isGroupChat) {
@@ -266,9 +247,10 @@ function ChatArea() {
         </div>
         <div className={"ca-message-area" + (lightTheme ? "" : " dark")}>
           {allMessages.length === 0 && (
-            <div style={{ display: "flex", justifyContent: "center" }}>
-              No previous Messages, start a new chat
-            </div>
+            <NotAvailable
+              display="No previous Messages, start a new chat"
+              padding="0"
+            />
           )}
 
           {allMessages
@@ -283,8 +265,15 @@ function ChatArea() {
                 return <MessageOthers props={message} key={index} />;
               }
             })}
+          {/* {messagesEndRef.current?.scrollHeight >
+            messagesEndRef.current?.clientHeight && (
+            <IconButton className="down-btn" onClick={scrollToBottom}>
+              <ExpandCircleDownIcon
+                className={"icon" + (lightTheme ? "" : " dark")}
+              />
+            </IconButton>
+          )} */}
         </div>
-        {/* <div ref={messagesEndRef} className="BOTTOM" /> */}
 
         <div className={"ca-text-input" + (lightTheme ? "" : " dark")}>
           <input
@@ -299,6 +288,7 @@ function ChatArea() {
                 dispatch(setRefresh(!refresh));
               }
             }}
+            ref={inputRef}
           />
           <IconButton
             className={"icon" + (lightTheme ? "" : " dark")}

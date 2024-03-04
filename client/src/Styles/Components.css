@@ -74,10 +74,6 @@
     flex: 1;
 }
 
-.ca-message-area {
-    flex: 1;
-    box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
-}
 
 .ca-text-input {
     background-color: #ffff;
@@ -311,9 +307,9 @@
     padding: 5px;
     margin: 10px;
     border-radius: 20px;
-    overflow: scroll;
-    scrollbar-width: none;
-
+    overflow-y: auto;
+    position: relative !important;
+    box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
 }
 
 .ca-message-area::-webkit-scrollbar {
@@ -536,12 +532,18 @@
     display: none !important;
 }
 
+/* .down-btn {
+    position: fixed !important;
+    bottom: 7rem;
+    right: 4.5rem;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.3s;
+} */
+
 @media only screen and (max-width: 40em) {
     .forMobile {
         display: block;
     }
-
-
 
     .sb-search {
         display: none;
