@@ -1,6 +1,6 @@
 import { Route, Routes } from "react-router-dom";
-import Login from "./Components/Login";
-import MainContainer from "./Components/MainContainer";
+import Login from "./Pages/Login";
+import ChatPage from "./Pages/ChatPage";
 import "./Styles/App.css";
 import ChatArea from "./Components/ChatArea";
 import Users from "./Components/Users";
@@ -17,7 +17,7 @@ function App() {
       <div className={"App" + (lightTheme ? "" : " dark-container")}>
         <Routes>
           <Route path="/" element={<Login />} />
-          <Route path="app" element={<MainContainer />}>
+          <Route path="app" element={<ChatPage />}>
             <Route path="chat" element={<MobileChats />}></Route>
             <Route path="chat/:id" element={<ChatArea />}></Route>
             <Route path="users" element={<Users />}></Route>

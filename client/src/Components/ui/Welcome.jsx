@@ -1,5 +1,5 @@
 import React from "react";
-import logo from "../../../icons/logo.png";
+import logo from "../../assets/logo.png";
 import { useSelector } from "react-redux";
 const Welcome = () => {
   const lightTheme = useSelector((state) => state.themeKey);

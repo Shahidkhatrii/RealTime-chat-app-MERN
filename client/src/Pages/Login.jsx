@@ -1,9 +1,9 @@
 import React, { useState } from "react";
-import logo from "../../../icons/logo.png";
+import logo from "../assets/logo.png";
 import { Backdrop, CircularProgress, Button, TextField } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import api from "../api/chatapi";
-import Toaster from "./Toaster";
+import Toaster from "../Components/ui/Toaster";
 const Login = () => {
   const navigate = useNavigate();
   const [showLogin, setShowLogin] = useState(true);

@@ -6,7 +6,7 @@ import { CircularProgress, IconButton, useMediaQuery } from "@mui/material";
 import { setRefresh } from "../Features/refreshSlice";
 import { setChats, setSelectedChat } from "../Features/chatSlice";
 import { AnimatePresence, motion } from "framer-motion";
-import logo from "../../../icons/logo.png";
+import logo from "../assets/logo.png";
 import RefreshIcon from "@mui/icons-material/Refresh";
 const MobileChats = () => {
   const matches = useMediaQuery("(min-width:40em)");

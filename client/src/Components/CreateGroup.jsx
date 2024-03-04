@@ -1,9 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import DoneOutlineRoundedIcon from "@mui/icons-material/DoneOutlineRounded";
-import RefreshIcon from "@mui/icons-material/Refresh";
 import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
-import logo from "../../../icons/logo.png";
+
 import {
   Button,
   CircularProgress,
@@ -21,8 +20,9 @@ import { useNavigate } from "react-router-dom";
 import api from "../api/chatapi";
 import "../Styles/Components.css";
 import { setRefresh } from "../Features/refreshSlice";
-import Pill from "./Pill";
+import Pill from "./ui/Pill";
 import { motion } from "framer-motion";
+import ListHeader from "./ui/ListHeader";
 const theme = createTheme({
   palette: {
     themeColor: {
@@ -135,7 +135,8 @@ const CreateGroup = () => {
         }}
         className={"list-container" + (lightTheme ? "" : " dark")}
       >
-        <div className={"ug-header" + (lightTheme ? "" : " dark")}>
+        <ListHeader title="Create Group" />
+        {/* <div className={"ug-header" + (lightTheme ? "" : " dark")}>
           <img
             src={logo}
             style={{ height: "2rem", width: "2rem", marginLeft: "10px" }}
@@ -151,7 +152,7 @@ const CreateGroup = () => {
           >
             <RefreshIcon />
           </IconButton>
-        </div>
+        </div> */}
         <div className={"createGroup-box" + (lightTheme ? "" : " dark")}>
           <input
             placeholder="Enter Group Name"

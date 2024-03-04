@@ -1,14 +1,11 @@
 import React, { useEffect, useState } from "react";
-import logo from "../../../icons/logo.png";
 import {
   Button,
   CircularProgress,
   IconButton,
   ThemeProvider,
-  Tooltip,
-  selectClasses,
 } from "@mui/material";
-import RefreshIcon from "@mui/icons-material/Refresh";
+
 import SearchIcon from "@mui/icons-material/Search";
 
 import SendRoundedIcon from "@mui/icons-material/SendRounded";
@@ -19,6 +16,7 @@ import { useNavigate } from "react-router-dom";
 import { setRefresh } from "../Features/refreshSlice";
 import { createTheme } from "@mui/material/styles";
 import { setSelectedChat } from "../Features/chatSlice";
+import ListHeader from "./ui/ListHeader";
 
 const theme = createTheme({
   palette: {
@@ -68,23 +66,7 @@ const Users = () => {
         }}
         className="list-container"
       >
-        <div className={"ug-header" + (lightTheme ? "" : " dark")}>
-          <img
-            src={logo}
-            style={{ height: "2rem", width: "2rem", marginLeft: "10px" }}
-          />
-          <p className={"ug-title" + (lightTheme ? "" : " dark")}>
-            Available Users
-          </p>
-          <IconButton
-            className={"icon" + (lightTheme ? "" : " dark")}
-            onClick={() => {
-              dispatch(setRefresh(!refresh));
-            }}
-          >
-            <RefreshIcon />
-          </IconButton>
-        </div>
+        <ListHeader title="Available Users" />
         <div className={"sb-search" + (lightTheme ? "" : " dark")}>
           <IconButton className="icon">
             <SearchIcon />

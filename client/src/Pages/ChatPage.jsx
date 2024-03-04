@@ -1,13 +1,11 @@
 import React from "react";
 import "../Styles/Components.css";
-import Sidebar from "./Sidebar";
-
-import "../Styles/Components.css";
+import Sidebar from "../Components/Sidebar";
 
 import { Outlet } from "react-router-dom";
 import { useSelector } from "react-redux";
 
-const MainContainer = () => {
+const ChatPage = () => {
   const lightTheme = useSelector((state) => state.themeKey);
   return (
     <>
@@ -19,4 +17,4 @@ const MainContainer = () => {
   );
 };
 
-export default MainContainer;
+export default ChatPage;

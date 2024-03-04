@@ -2,19 +2,19 @@ import React, { useEffect, useState } from "react";
 import { IconButton, Tooltip, Zoom } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
-import MessageSelf from "./MessageSelf";
-import MessageOthers from "./MessageOthers";
+import MessageSelf from "./MessageBox/MessageSelf";
+import MessageOthers from "./MessageBox/MessageOthers";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import Skeleton from "@mui/material/Skeleton";
 import api from "../api/chatapi";
 import { io } from "socket.io-client";
 import { setRefresh } from "../Features/refreshSlice";
-import Welcome from "./Welcome";
+import Welcome from "./ui/Welcome";
 import { setNotifications, setSelectedChat } from "../Features/chatSlice";
-import Toaster from "./Toaster";
+import Toaster from "./ui/Toaster";
 
-const ENDPOINT = "https://realtime-chat-server-sgpt.onrender.com/";
+const ENDPOINT = "http://localhost:5000/";
 var socket, selectedChatCompare;
 function ChatArea() {
   const dispatch = useDispatch();
@@ -167,6 +167,7 @@ function ChatArea() {
     socket.on("message received", (newMessage) => {
       if (!selectedChatCompare || selectedChatCompare !== newMessage.chat._id) {
         // notification logic will go here
+        console.log("new message: ", newMessage);
         dispatch(setNotifications([...notifications, newMessage]));
       } else {
         const updatedMessages = [...allMessages, newMessage];
