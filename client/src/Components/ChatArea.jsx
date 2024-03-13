@@ -16,7 +16,7 @@ import Toaster from "./ui/Toaster";
 import NotAvailable from "./ui/NotAvailable";
 import ChatAreaSkeleton from "./ui/ChatAreaSkeleton";
 
-const ENDPOINT = "http://localhost:5000/";
+const ENDPOINT = "https://realtime-chat-server-sgpt.onrender.com/";
 var socket, selectedChatCompare;
 function ChatArea() {
   const dispatch = useDispatch();
@@ -42,16 +42,21 @@ function ChatArea() {
   // Fetching messages
   const fetchMessages = async () => {
     if (!selectedChat) return;
+    setloaded(false);
+    try {
+      const config = {
+        headers: {
+          Authorization: `Bearer ${userData.data.token}`,
+        },
+      };
 
-    const config = {
-      headers: {
-        Authorization: `Bearer ${userData.data.token}`,
-      },
-    };
-
-    const { data } = await api.get("message/" + selectedChat?._id, config);
-    setAllMessages(data);
-    setloaded(true);
+      const { data } = await api.get("message/" + selectedChat?._id, config);
+      setAllMessages(data);
+    } catch (error) {
+      console.error(error?.message);
+    } finally {
+      setloaded(true);
+    }
   };
 
   // Sending messages
@@ -168,14 +173,13 @@ function ChatArea() {
       socket.emit("leave chat", selectedChat?._id);
     };
     // scrollToBottom();
-  }, [refresh, selectedChat, userData.data.token]);
+  }, [selectedChat, userData.data.token]);
 
   // new message received
   useEffect(() => {
     socket.on("message received", (newMessage) => {
       if (!selectedChatCompare || selectedChatCompare !== newMessage.chat._id) {
         // notification logic will go here
-        console.log("new message: ", newMessage);
         dispatch(setNotifications([...notifications, newMessage]));
       } else {
         const updatedMessages = [...allMessages, newMessage];
