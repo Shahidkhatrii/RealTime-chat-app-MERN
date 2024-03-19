@@ -150,6 +150,13 @@
     background: #888;
 }
 
+.sb-more-options {
+    width: 75%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
 .conversation-card {
     display: grid;
     grid-template-columns: 32px auto auto;
@@ -532,6 +539,7 @@
     display: none !important;
 }
 
+
 /* .down-btn {
     position: fixed !important;
     bottom: 7rem;
@@ -657,5 +665,12 @@
     .list-tem,
     .list-tem>Button {
         font-size: 0.7rem !important;
+    }
+
+    .sb-more-options {
+        width: auto;
+        flex: 0.55;
+        flex-direction: column;
+        justify-content: space-between;
     }
 }

@@ -9,7 +9,6 @@ import {
   Tooltip,
   Typography,
   Zoom,
-  createTheme,
   useMediaQuery,
 } from "@mui/material";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
@@ -130,97 +129,113 @@ const Sidebar = () => {
             </Tooltip>
           </div>
 
-          <Tooltip TransitionComponent={Zoom} title="Users" arrow>
-            <IconButton
-              onClick={() => {
-                navigate("users");
-              }}
-            >
-              <PersonAddIcon className={"icon" + (lightTheme ? "" : " dark")} />
-            </IconButton>
-          </Tooltip>
-          <Tooltip TransitionComponent={Zoom} title="Groups" arrow>
-            <IconButton
-              onClick={() => {
-                navigate("groups");
-              }}
-            >
-              <GroupAddIcon className={"icon" + (lightTheme ? "" : " dark")} />
-            </IconButton>
-          </Tooltip>
-
-          <div>
-            <ThemeProvider theme={theme}>
-              <Tooltip TransitionComponent={Zoom} title="Notifications" arrow>
+          {!toggleMoreOptions && (
+            <>
+              <Tooltip TransitionComponent={Zoom} title="Users" arrow>
                 <IconButton
-                  id="notification-button"
-                  aria-controls={open ? "notification-menu" : undefined}
-                  aria-haspopup="true"
-                  aria-expanded={open ? "true" : undefined}
-                  onClick={handleNotificationClick}
+                  onClick={() => {
+                    navigate("users");
+                  }}
                 >
-                  <Badge badgeContent={notifications.length} color="themeColor">
-                    <NotificationsIcon
-                      className={"icon" + (lightTheme ? "" : " dark")}
-                    />
-                  </Badge>
+                  <PersonAddIcon
+                    className={"icon" + (lightTheme ? "" : " dark")}
+                  />
                 </IconButton>
               </Tooltip>
-            </ThemeProvider>
+              <Tooltip TransitionComponent={Zoom} title="Groups" arrow>
+                <IconButton
+                  onClick={() => {
+                    navigate("groups");
+                  }}
+                >
+                  <GroupAddIcon
+                    className={"icon" + (lightTheme ? "" : " dark")}
+                  />
+                </IconButton>
+              </Tooltip>
 
-            <Menu
-              id="notification-menu"
-              anchorEl={anchorEl}
-              open={open}
-              onClose={handleNotificationClose}
-              MenuListProps={{
-                "aria-labelledby": "notification-button",
-              }}
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "center",
-              }}
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "center",
-              }}
-            >
-              {notifications.length === 0 && (
-                <MenuItem onClick={handleNotificationClose}>
-                  <Typography variant="inherit" noWrap>
-                    No New Messages
-                  </Typography>
-                </MenuItem>
-              )}
-              {notifications.map((newMessage) => {
-                let conName;
-                if (newMessage.chat.isGroupChat) {
-                  conName = newMessage.chat.chatName;
-                } else {
-                  conName = newMessage.sender.username;
-                }
-                return (
-                  <MenuItem
-                    key={newMessage._id}
-                    onClick={() => {
-                      dispatch(setSelectedChat(newMessage.chat));
-                      navigate(`chat/${conName}`);
-                      const updateNotifications = notifications.filter(
-                        (notification) => notification._id !== newMessage._id
-                      );
-                      dispatch(setNotifications(updateNotifications));
-                      handleNotificationClose();
-                    }}
+              <div>
+                <ThemeProvider theme={theme}>
+                  <Tooltip
+                    TransitionComponent={Zoom}
+                    title="Notifications"
+                    arrow
                   >
-                    <Typography variant="inherit" noWrap>
-                      New Message in
-                      <span style={{ color: "#63d7b0" }}> {conName}</span>
-                    </Typography>
-                  </MenuItem>
-                );
-              })}
-            </Menu>
-          </div>
+                    <IconButton
+                      id="notification-button"
+                      aria-controls={open ? "notification-menu" : undefined}
+                      aria-haspopup="true"
+                      aria-expanded={open ? "true" : undefined}
+                      onClick={handleNotificationClick}
+                    >
+                      <Badge
+                        badgeContent={notifications.length}
+                        color="themeColor"
+                      >
+                        <NotificationsIcon
+                          className={"icon" + (lightTheme ? "" : " dark")}
+                        />
+                      </Badge>
+                    </IconButton>
+                  </Tooltip>
+                </ThemeProvider>
+
+                <Menu
+                  id="notification-menu"
+                  anchorEl={anchorEl}
+                  open={open}
+                  onClose={handleNotificationClose}
+                  MenuListProps={{
+                    "aria-labelledby": "notification-button",
+                  }}
+                  anchorOrigin={{
+                    vertical: "bottom",
+                    horizontal: "center",
+                  }}
+                  transformOrigin={{
+                    vertical: "top",
+                    horizontal: "center",
+                  }}
+                >
+                  {notifications.length === 0 && (
+                    <MenuItem onClick={handleNotificationClose}>
+                      <Typography variant="inherit" noWrap>
+                        No New Messages
+                      </Typography>
+                    </MenuItem>
+                  )}
+                  {notifications.map((newMessage) => {
+                    let conName;
+                    if (newMessage.chat.isGroupChat) {
+                      conName = newMessage.chat.chatName;
+                    } else {
+                      conName = newMessage.sender.username;
+                    }
+                    return (
+                      <MenuItem
+                        key={newMessage._id}
+                        onClick={() => {
+                          dispatch(setSelectedChat(newMessage.chat));
+                          navigate(`chat/${conName}`);
+                          const updateNotifications = notifications.filter(
+                            (notification) =>
+                              notification._id !== newMessage._id
+                          );
+                          dispatch(setNotifications(updateNotifications));
+                          handleNotificationClose();
+                        }}
+                      >
+                        <Typography variant="inherit" noWrap>
+                          New Message in
+                          <span style={{ color: "#63d7b0" }}> {conName}</span>
+                        </Typography>
+                      </MenuItem>
+                    );
+                  })}
+                </Menu>
+              </div>
+            </>
+          )}
 
           <AnimatePresence>
             <motion.div
