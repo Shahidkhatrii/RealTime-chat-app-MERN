@@ -566,7 +566,7 @@
         background-color: #ffff;
         border-radius: 20px;
         padding: 10px 5px;
-        margin: 10px;
+        margin: 5px;
         flex: 1;
         overflow: auto;
         box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px, rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
@@ -576,6 +576,11 @@
         flex-direction: column;
         flex: 1;
         width: min-content;
+        margin: 5px;
+    }
+
+    .ug-header {
+        margin: 5px;
     }
 
     .other-icons {
@@ -640,6 +645,7 @@
 
     .main-container {
         height: 100vh;
+        height: 100svh;
         width: 100vw;
         border-radius: 0;
         overflow: hidden;

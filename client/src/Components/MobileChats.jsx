@@ -6,6 +6,7 @@ import { useMediaQuery } from "@mui/material";
 import { setRefresh } from "../Features/refreshSlice";
 import { setChats, setSelectedChat } from "../Features/chatSlice";
 import { AnimatePresence, motion } from "framer-motion";
+import NotAvailable from "./ui/NotAvailable";
 import ListHeader from "./ui/ListHeader";
 import Loading from "./ui/Loading";
 const MobileChats = () => {
