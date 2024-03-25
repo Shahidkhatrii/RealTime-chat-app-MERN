@@ -4,7 +4,6 @@ const connectDb = require("./config/dbConnection");
 const userRoutes = require("./Routes/userRoutes");
 const chatRoutes = require("./Routes/chatRoutes");
 const messageRoutes = require("./Routes/messageRoutes");
-const errorHandler = require("./middleware/errorHandler");
 const { Server } = require("socket.io");
 const { createServer } = require("http");
 const cors = require("cors");
@@ -23,6 +22,17 @@ app.use(
 app.use("/user", userRoutes);
 app.use("/chat", chatRoutes);
 app.use("/message", messageRoutes);
+
+// Ignore this, as it is only for server restart...
+app.get("/restart", (req, res) => {
+  try {
+    res.status(200).json({ status: `server restarted` });
+  } catch (error) {
+    res.status(500);
+    throw new Error(error?.message);
+  }
+});
+
 //Middlewares
 // app.use(errorHandler);
 const httpServer = createServer(app);
