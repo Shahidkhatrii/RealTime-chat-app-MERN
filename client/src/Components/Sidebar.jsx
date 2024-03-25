@@ -80,6 +80,12 @@ const Sidebar = () => {
     navigate("/");
   };
   useEffect(() => {
+    if (
+      JSON.parse(localStorage.getItem("theme")) === false &&
+      lightTheme === true
+    ) {
+      dispatch(toggleTheme());
+    }
     const fetchChat = async () => {
       const config = {
         headers: {
@@ -254,13 +260,16 @@ const Sidebar = () => {
               </Tooltip>
 
               <Tooltip TransitionComponent={Zoom} title="Theme" arrow>
-                <IconButton onClick={() => dispatch(toggleTheme())}>
-                  {lightTheme && (
+                <IconButton
+                  onClick={() => {
+                    dispatch(toggleTheme());
+                  }}
+                >
+                  {lightTheme ? (
                     <NightlightIcon
                       className={"icon" + (lightTheme ? "" : " dark")}
                     />
-                  )}
-                  {!lightTheme && (
+                  ) : (
                     <LightModeIcon
                       className={"icon" + (lightTheme ? "" : " dark")}
                     />

@@ -7,9 +7,16 @@ import { useSelector } from "react-redux";
 
 const ChatPage = () => {
   const lightTheme = useSelector((state) => state.themeKey);
+  const isLoggedIn = JSON.parse(localStorage.getItem("UserData") || null)
+    ? true
+    : false;
   return (
     <>
-      <div className={"main-container" + (lightTheme ? "" : " dark-container")}>
+      <div
+        className={
+          "main-container" + (lightTheme && isLoggedIn ? "" : " dark-container")
+        }
+      >
         <Sidebar />
         <Outlet />
       </div>
