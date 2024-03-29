@@ -36,6 +36,7 @@ import { setRefresh } from "../Features/refreshSlice";
 import { AnimatePresence, motion } from "framer-motion";
 import Loading from "./ui/Loading";
 import theme from "../assets/theme/theme.js";
+import NotAvailable from "./ui/NotAvailable.jsx";
 const variants = {
   open: { opacity: 1, x: 0 },
   closed: { opacity: 0, x: "100%" },
@@ -326,10 +327,12 @@ const Sidebar = () => {
       <div className={"sb-conversations" + (lightTheme ? "" : " dark")}>
         {!loaded && <Loading />}
         {loaded && chats.length === 0 && (
-          <NotAvailable
-            display="No previous chats, go to available users and click on user to start
+          <div style={{ padding: "20px" }}>
+            <NotAvailable
+              display="No previous chats, go to available users and click on user to start
           chat."
-          />
+            />
+          </div>
         )}
         {loaded &&
           chats.map((chat, index) => {

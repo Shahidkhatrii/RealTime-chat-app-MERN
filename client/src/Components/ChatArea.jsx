@@ -1,10 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { IconButton, Tooltip, Zoom } from "@mui/material";
-import SendIcon from "@mui/icons-material/Send";
+
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
-import ExpandCircleDownIcon from "@mui/icons-material/ExpandCircleDown";
-import MessageSelf from "./MessageBox/MessageSelf";
-import MessageOthers from "./MessageBox/MessageOthers";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import api from "../api/chatapi";
@@ -13,10 +10,12 @@ import { setRefresh } from "../Features/refreshSlice";
 import Welcome from "./ui/Welcome";
 import { setNotifications, setSelectedChat } from "../Features/chatSlice";
 import Toaster from "./ui/Toaster";
-import NotAvailable from "./ui/NotAvailable";
 import ChatAreaSkeleton from "./ui/ChatAreaSkeleton";
-
+import MessageArea from "./MessageArea";
+import MessageInput from "./MessageInput";
 const ENDPOINT = "https://realtime-chat-server-sgpt.onrender.com/";
+
+// const ENDPOINT = "http://localhost:5000/";
 var socket, selectedChatCompare;
 function ChatArea() {
   const dispatch = useDispatch();
@@ -155,6 +154,7 @@ function ChatArea() {
     });
   }, []);
 
+  // focus on input field
   useEffect(() => {
     inputRef.current?.focus();
   }, [loaded]);
@@ -249,62 +249,17 @@ function ChatArea() {
             <></>
           )}
         </div>
-        <div className={"ca-message-area" + (lightTheme ? "" : " dark")}>
-          {allMessages.length === 0 && (
-            <NotAvailable
-              display="No previous Messages, start a new chat"
-              padding="0"
-            />
-          )}
-
-          {allMessages
-            .slice(0)
-            .reverse()
-            .map((message, index) => {
-              const sender = message.sender;
-              const self_id = userData.data._id;
-              if (sender._id === self_id) {
-                return <MessageSelf props={message} key={index} />;
-              } else {
-                return <MessageOthers props={message} key={index} />;
-              }
-            })}
-          {/* {messagesEndRef.current?.scrollHeight >
-            messagesEndRef.current?.clientHeight && (
-            <IconButton className="down-btn" onClick={scrollToBottom}>
-              <ExpandCircleDownIcon
-                className={"icon" + (lightTheme ? "" : " dark")}
-              />
-            </IconButton>
-          )} */}
-        </div>
-
-        <div className={"ca-text-input" + (lightTheme ? "" : " dark")}>
-          <input
-            placeholder="Type a Message"
-            className={"search-box" + (lightTheme ? "" : " dark")}
-            value={messageContent}
-            onChange={typingHandler}
-            onKeyDown={(event) => {
-              if (event.code == "Enter") {
-                sendMessage();
-                setMessageContent("");
-                dispatch(setRefresh(!refresh));
-              }
-            }}
-            ref={inputRef}
-          />
-          <IconButton
-            className={"icon" + (lightTheme ? "" : " dark")}
-            onClick={() => {
-              sendMessage();
-              setMessageContent("");
-              dispatch(setRefresh(!refresh));
-            }}
-          >
-            <SendIcon />
-          </IconButton>
-        </div>
+        {/* Message area */}
+        <MessageArea allMessages={allMessages} userData={userData} />
+        {/* Message input */}
+        <MessageInput
+          messageContent={messageContent}
+          typingHandler={typingHandler}
+          sendMessage={sendMessage}
+          setMessageContent={setMessageContent}
+          inputRef={inputRef}
+          refresh={refresh}
+        />
       </div>
     );
   }

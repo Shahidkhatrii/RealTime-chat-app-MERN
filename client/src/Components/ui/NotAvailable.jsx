@@ -1,13 +1,12 @@
 import React from "react";
 
-const NotAvailable = ({ display, padding = "20px" }) => {
+const NotAvailable = ({ display }) => {
   return (
     <>
       <div
         style={{
           display: "flex",
           justifyContent: "center",
-          padding: padding,
         }}
       >
         {display}
