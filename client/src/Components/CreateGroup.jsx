@@ -24,6 +24,7 @@ import { motion } from "framer-motion";
 import ListHeader from "./ui/ListHeader";
 import Loading from "./ui/Loading";
 import theme from "../assets/theme/theme.js";
+import NotAvailable from "./ui/NotAvailable.jsx";
 
 const CreateGroup = () => {
   const lightTheme = useSelector((state) => state.themeKey);
