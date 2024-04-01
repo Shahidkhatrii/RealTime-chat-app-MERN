@@ -3,17 +3,7 @@ import DoneOutlineRoundedIcon from "@mui/icons-material/DoneOutlineRounded";
 import AddIcon from "@mui/icons-material/Add";
 import SearchIcon from "@mui/icons-material/Search";
 
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  IconButton,
-  ThemeProvider,
-  createTheme,
-} from "@mui/material";
+import { Button, IconButton, ThemeProvider } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import api from "../api/chatapi";
@@ -25,6 +15,7 @@ import ListHeader from "./ui/ListHeader";
 import Loading from "./ui/Loading";
 import theme from "../assets/theme/theme.js";
 import NotAvailable from "./ui/NotAvailable.jsx";
+import CreateGroupModal from "./ui/CreateGroupModal.jsx";
 
 const CreateGroup = () => {
   const lightTheme = useSelector((state) => state.themeKey);
@@ -59,8 +50,7 @@ const CreateGroup = () => {
     const config = {
       headers: { Authorization: `Bearer ${user.token}` },
     };
-    if (selectedMembers.length === 0) {
-    } else {
+    if (selectedMembers.length > 0 && groupName !== "") {
       await api.post(
         "chat/createGroup",
         {
@@ -129,23 +119,7 @@ const CreateGroup = () => {
         className={"list-container" + (lightTheme ? "" : " dark")}
       >
         <ListHeader title="Create Group" />
-        {/* <div className={"ug-header" + (lightTheme ? "" : " dark")}>
-          <img
-            src={logo}
-            style={{ height: "2rem", width: "2rem", marginLeft: "10px" }}
-          />
-          <p className={"ug-title" + (lightTheme ? "" : " dark")}>
-            Create Group
-          </p>
-          <IconButton
-            className={"icon" + (lightTheme ? "" : " dark")}
-            onClick={() => {
-              dispatch(setRefresh(!refresh));
-            }}
-          >
-            <RefreshIcon />
-          </IconButton>
-        </div> */}
+
         <div className={"createGroup-box" + (lightTheme ? "" : " dark")}>
           <input
             placeholder="Enter Group Name"
@@ -153,26 +127,16 @@ const CreateGroup = () => {
             onChange={(e) => {
               setGroupName(e.target.value);
             }}
-            onKeyDown={(e) => {
-              if (
-                groupName !== "" &&
-                selectedMembers.length > 0 &&
-                e.key === "Enter"
-              ) {
-                handleClickOpen();
-              }
-            }}
           />
-          {groupName !== "" && selectedMembers.length > 0 && (
-            <IconButton
-              className={"icon" + (lightTheme ? "" : " dark")}
-              onClick={() => {
-                handleClickOpen();
-              }}
-            >
-              <DoneOutlineRoundedIcon />
-            </IconButton>
-          )}
+          <IconButton
+            className={"icon" + (lightTheme ? "" : " dark")}
+            onClick={() => {
+              handleClickOpen();
+            }}
+            disabled={selectedMembers.length === 0 || groupName === ""}
+          >
+            <DoneOutlineRoundedIcon />
+          </IconButton>
         </div>
 
         <div className={"cg-search" + (lightTheme ? "" : " dark")}>
@@ -243,36 +207,12 @@ const CreateGroup = () => {
             })}
         </div>
       </motion.div>
-      <div>
-        <Dialog
-          open={open}
-          onClose={handleClose}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-        >
-          <DialogTitle id="alert-dialog-title">
-            {"Do you want to create a Group Named " + groupName}
-          </DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              This will create a create group in which you will be the admin and
-              other will be able to join this group.
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={handleClose}>Disagree</Button>
-            <Button
-              onClick={() => {
-                createGroup();
-                handleClose();
-              }}
-              autoFocus
-            >
-              Agree
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </div>
+      <CreateGroupModal
+        open={open}
+        handleClose={handleClose}
+        groupName={groupName}
+        createGroup={createGroup}
+      />
     </>
   );
 };
